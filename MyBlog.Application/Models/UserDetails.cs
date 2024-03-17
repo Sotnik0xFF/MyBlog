@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MyBlog.Application.Models;
+
+public class UserDetails
+{
+    public long Id { get; set; }
+    public required string Login { get; set; }
+    public required string FirstName { get; set; }
+    public required string LastName { get; set; }
+    public required string Email { get; set; }
+    public required IEnumerable<String> Roles { get; set; }
+}

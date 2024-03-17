@@ -1,0 +1,39 @@
+﻿@using MyBlog.Application.Models
+@model UserDetails
+
+@{
+    <div><h1>Редактирование пользователя</h1></div>
+    @if (Model != null)
+    {
+        <div>
+            <form method="post">
+                <table>
+                    <tr>
+                        <td>Логин:</td>
+                        <td>@Model.Login </td>
+                    </tr>
+                    <tr>
+                        <td>Имя:</td>
+                        <td><input type="text" name="FirstName" value="@Model.FirstName"/></td>
+                    </tr>
+                    <tr>
+                        <td>Фамилия:</td>
+                        <td><input type="text" name="LastName" value="@Model.LastName" /></td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td><input type="text" name="Email" value="@Model.Email" /></td>
+                    </tr>
+                </table>
+                <br>
+                <div class="submit-button">
+                    <input type="submit" value="Обновить" />
+                </div>
+            </form>
+        </div>
+    }
+    else
+    {
+        <div>Пользователь не найден.</div>
+    }
+}
