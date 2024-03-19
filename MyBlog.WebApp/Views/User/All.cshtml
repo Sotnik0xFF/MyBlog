@@ -1,6 +1,6 @@
 ﻿@using MyBlog.Application.Models
 
-@model IEnumerable<UserDetails>
+@model IEnumerable<UserViewModel>
 @{
 	<div><h1>Список пользователей</h1></div>
 
@@ -10,7 +10,7 @@
             <td>Логин</td>
             <td>Email</td>
         </tr>
-        @foreach (UserDetails user in Model)
+        @foreach (UserViewModel user in Model)
         {
             <tr>
                 <td>@user.Id</td>
