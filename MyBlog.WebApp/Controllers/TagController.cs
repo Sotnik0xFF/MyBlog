@@ -20,13 +20,13 @@ namespace MyBlog.WebApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            IEnumerable<TagDetails> tags = await _tagService.FindAll();
+            IEnumerable<TagViewModel> tags = await _tagService.FindAll();
             return Json(tags, _jsonOptions);
         }
 
         public async Task<IActionResult> ById(long id)
         {
-            TagDetails? tag = await _tagService.FindById(id);
+            TagViewModel? tag = await _tagService.FindById(id);
             if (tag != null)
             {
                 return Json(tag, _jsonOptions);
@@ -40,7 +40,7 @@ namespace MyBlog.WebApp.Controllers
 
         public async Task<IActionResult> Create(string name)
         {
-            TagDetails tag = await _tagService.Create(name);
+            TagViewModel tag = await _tagService.Create(name);
             return Json(tag, _jsonOptions);
         }
 
@@ -48,7 +48,7 @@ namespace MyBlog.WebApp.Controllers
         {
             try
             {
-                TagDetails tag = await _tagService.Update(id, name);
+                TagViewModel tag = await _tagService.Update(id, name);
                 return Ok($"Тэг [Id = {id}] обновлен. Название тега: {name}");
             }
             catch(EntityAlreadyExistsException)
@@ -65,7 +65,7 @@ namespace MyBlog.WebApp.Controllers
         {
             try
             {
-                TagDetails tag = await _tagService.Delete(id);
+                TagViewModel tag = await _tagService.Delete(id);
                 return Ok($"Тэг {tag.Name} удален.");
             }
             catch (EntityNotFoundException)

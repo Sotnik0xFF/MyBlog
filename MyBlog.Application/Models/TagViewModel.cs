@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Application.Models;
 
-public class TagDetails
+public record TagViewModel
 {
-    public long Id { get; set; }
-    public required string Name { get; set; }
+    public long Id { get; init; }
+    public required string Name { get; init; }
 }

@@ -15,7 +15,7 @@ public class TagService(ITagRepository tagRepository)
 {
     private readonly ITagRepository _tagRepository = tagRepository;
 
-    public async Task<TagDetails> Create(string tagValue)
+    public async Task<TagViewModel> Create(string tagValue)
     {
         Tag? tag = await _tagRepository.FindByValue(tagValue);
         if (tag != null)
@@ -28,25 +28,25 @@ public class TagService(ITagRepository tagRepository)
         return Map(tag);
     }
 
-    public async Task<TagDetails> Update(long id, string newValue)
+    public async Task<TagViewModel> Update(long id, string newValue)
     {
-        Tag? tag = await _tagRepository.FindById(id);
+        Tag? tagToUpdate = await _tagRepository.FindById(id);
 
-        if (tag == null)
+        if (tagToUpdate == null)
             throw new EntityNotFoundException();
 
-        Tag? tagByValue = await _tagRepository.FindByValue(newValue);
-        if (tagByValue != null && tag != tagByValue)
+        Tag? existedTag = await _tagRepository.FindByValue(newValue);
+        if (existedTag != null && tagToUpdate != existedTag)
             throw new EntityAlreadyExistsException();
 
-        tag.Value = newValue;
-        _tagRepository.Update(tag);
+        tagToUpdate.Value = newValue;
+        _tagRepository.Update(tagToUpdate);
         await _tagRepository.UnitOfWork.SaveChangesAsync();
 
-        return Map(tag);
+        return Map(tagToUpdate);
     }
 
-    public async Task<TagDetails> Delete(long id)
+    public async Task<TagViewModel> Delete(long id)
     {
         Tag? tag = await _tagRepository.FindById(id);
 
@@ -59,19 +59,20 @@ public class TagService(ITagRepository tagRepository)
         return Map(tag);
     }
 
-    public async Task<TagDetails?> FindById(long id)
+    public async Task<TagViewModel> FindById(long id)
     {
         Tag? tag = await _tagRepository.FindById(id);
 
-        TagDetails? model = tag != null ? Map(tag) : null;
+        if (tag == null)
+            throw new EntityNotFoundException();
 
-        return model;
+        return Map(tag);
     }
 
-    public async Task<IEnumerable<TagDetails>> FindAll()
+    public async Task<IEnumerable<TagViewModel>> FindAll()
     {
         IEnumerable<Tag> tags = await _tagRepository.FindAll();
-        List<TagDetails> tagModels = new();
+        List<TagViewModel> tagModels = new();
 
         foreach (Tag tag in tags)
         {
@@ -81,8 +82,8 @@ public class TagService(ITagRepository tagRepository)
         return tagModels;
     }
 
-    private TagDetails Map(Tag tag)
+    private TagViewModel Map(Tag tag)
     {
-        return new TagDetails() { Id = tag.Id, Name = tag.Value };
+        return new TagViewModel() { Id = tag.Id, Name = tag.Value };
     }
 }
