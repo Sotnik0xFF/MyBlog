@@ -10,14 +10,9 @@ using System.Security.Claims;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController(UserService userService) : Controller
     {
-        UserService _userService;
-
-        public AccountController(UserService userService)
-        {
-            _userService = userService;
-        }
+        private readonly UserService _userService = userService;
 
         public async Task<IActionResult> Login(Application.Models.LoginRequest loginRequest)
         {

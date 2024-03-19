@@ -5,16 +5,10 @@ using MyBlog.Domain.Models;
 
 namespace MyBlog.Application.Services;
 
-public class UserService
+public class UserService(IUserRepository userRepository, IRoleRepository roleRepository)
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IRoleRepository _roleRepository;
-
-    public UserService(IUserRepository userRepository, IRoleRepository roleRepository)
-    {
-        _userRepository = userRepository;
-        _roleRepository = roleRepository;
-    }
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IRoleRepository _roleRepository = roleRepository;
 
     public async Task<UserDetails> Create(CreateUserRequest createUserRequest)
     {
@@ -23,15 +17,15 @@ public class UserService
         User? user = null;
 
         user = await _userRepository.FindByLogin(createUserRequest.Login);
-        if (user != null) 
+        if (user != null)
             throw new EntityAlreadyExistsException();
 
         user = new User(
             createUserRequest.Login,
-			createUserRequest.Password,
-			createUserRequest.FirstName,
-			createUserRequest.LastName,
-			createUserRequest.Email);
+            createUserRequest.Password,
+            createUserRequest.FirstName,
+            createUserRequest.LastName,
+            createUserRequest.Email);
         user.AddRole(userRole);
 
         _userRepository.Add(user);
@@ -66,8 +60,8 @@ public class UserService
         foreach (var user in users)
         {
             UserDetails userDetails = Map(user);
-			results.Add(userDetails);
-		}
+            results.Add(userDetails);
+        }
 
         return results;
     }

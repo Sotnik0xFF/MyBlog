@@ -11,14 +11,9 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Application.Services;
 
-public class TagService
+public class TagService(ITagRepository tagRepository)
 {
-    private readonly ITagRepository _tagRepository;
-
-    public TagService(ITagRepository tagRepository)
-    {
-        _tagRepository = tagRepository;
-    }
+    private readonly ITagRepository _tagRepository = tagRepository;
 
     public async Task<TagDetails> Create(string tagValue)
     {

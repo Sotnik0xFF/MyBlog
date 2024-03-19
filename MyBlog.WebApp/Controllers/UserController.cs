@@ -9,16 +9,14 @@ using System.Text.Json;
 
 namespace MyBlog.WebApp.Controllers;
 
-public class UserController : Controller
+public class UserController(UserService userService) : Controller
 {
-    private readonly UserService _userService;
-    private readonly JsonSerializerOptions _jsonOptions;
-
-    public UserController(UserService userService)
+    private readonly UserService _userService = userService;
+    private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions()
     {
-        _userService = userService;
-        _jsonOptions = new JsonSerializerOptions() { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
-    }
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
 
     [Authorize]
     public async Task<ActionResult> Index()

@@ -4,14 +4,9 @@ using MyBlog.Application.Services;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class PostController : Controller
+    public class PostController(PostService postService) : Controller
     {
-        private readonly PostService _postService;
-
-        public PostController(PostService postService)
-        {
-            _postService = postService;
-        }
+        private readonly PostService _postService = postService;
 
         [HttpPost]
         public async Task<PostDetails?> Create(CreatePostRequest createPostRequest)

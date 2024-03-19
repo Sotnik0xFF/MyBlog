@@ -10,18 +10,11 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Application.Services
 {
-    public class CommentService
+    public class CommentService(ICommentRepository commentRepository, IUserRepository userRepository, IPostRepository postRepository)
     {
-        private readonly ICommentRepository _commentRepository;
-        private readonly IPostRepository _postRepository;
-        private readonly IUserRepository _userRepository;
-
-        public CommentService(ICommentRepository commentRepository, IUserRepository userRepository, IPostRepository postRepository)
-        {
-            _commentRepository = commentRepository;
-            _userRepository = userRepository;
-            _postRepository = postRepository;
-        }
+        private readonly ICommentRepository _commentRepository = commentRepository;
+        private readonly IPostRepository _postRepository = postRepository;
+        private readonly IUserRepository _userRepository = userRepository;
 
         public async Task<CommentDetails> Create(CreateCommentRequest createCommentRequest)
         {

@@ -9,16 +9,14 @@ using System.Text.Json;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class TagController : Controller
+    public class TagController(TagService tagService) : Controller
     {
-        private readonly TagService _tagService;
-        private readonly JsonSerializerOptions _jsonOptions;
-
-        public TagController(TagService tagService)
-        {
-            _tagService = tagService;
-            _jsonOptions = new JsonSerializerOptions() { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
-        }
+        private readonly TagService _tagService = tagService;
+        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions() 
+        { 
+            WriteIndented = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping 
+        };
 
         public async Task<IActionResult> Index()
         {

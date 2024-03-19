@@ -2,20 +2,13 @@
 using MyBlog.Application.Models;
 using MyBlog.Domain.Interfaces;
 using MyBlog.Domain.Models;
-using MyBlog.Infrastructure.Repositories;
 
 namespace MyBlog.Application.Services;
 
-public class PostService
+public class PostService(IPostRepository postRepository, ITagRepository tagRepository)
 {
-    private readonly IPostRepository _postRepository;
-    private readonly ITagRepository  _tagRepository;
-
-    public PostService(IPostRepository postRepository, ITagRepository tagRepository)
-    {
-        _postRepository = postRepository;
-        _tagRepository = tagRepository;
-    }
+    private readonly IPostRepository _postRepository = postRepository;
+    private readonly ITagRepository _tagRepository = tagRepository;
 
     public async Task<PostDetails> Create(CreatePostRequest newPostRequest)
     {
@@ -34,7 +27,7 @@ public class PostService
                 _tagRepository.Add(newTag);
                 await _tagRepository.UnitOfWork.SaveChangesAsync();
                 newPost.AddTag(newTag);
-            } 
+            }
         }
 
         _postRepository.Add(newPost);

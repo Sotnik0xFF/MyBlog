@@ -5,14 +5,9 @@ using MyBlog.Application.Services;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class CommentController : Controller
+    public class CommentController(CommentService commentService) : Controller
     {
-        private readonly CommentService _commentService;
-
-        public CommentController(CommentService commentService)
-        {
-            _commentService = commentService;
-        }
+        private readonly CommentService _commentService = commentService;
 
         public async Task<IActionResult> All()
         {
