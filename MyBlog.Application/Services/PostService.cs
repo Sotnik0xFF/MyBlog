@@ -41,7 +41,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         Post? editablePost = await _postRepository.FindById(updatePostRequest.Id);
 
         if (editablePost == null)
-            throw new EntityNotFoundException();
+            throw new KeyNotFoundException(nameof(updatePostRequest.Id));
 
         editablePost.ClearTags();
 
@@ -73,7 +73,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         Post? post = await _postRepository.FindById(id);
 
         if (post == null)
-            throw new EntityNotFoundException();
+            throw new KeyNotFoundException(nameof(id));
 
         _postRepository.Delete(post);
         await _postRepository.UnitOfWork.SaveChangesAsync();

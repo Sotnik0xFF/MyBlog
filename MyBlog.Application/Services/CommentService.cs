@@ -20,11 +20,11 @@ namespace MyBlog.Application.Services
         {
             Post? post = await _postRepository.FindById(createCommentRequest.PostId);
             if (post == null)
-                throw new EntityNotFoundException();
+                throw new KeyNotFoundException(nameof(createCommentRequest.PostId));
 
             User? user = await _userRepository.FindById(createCommentRequest.UserId);
             if (user == null)
-                throw new EntityNotFoundException();
+                throw new KeyNotFoundException(nameof(createCommentRequest.UserId));
 
             Comment newComment = new(user.Id, post.Id, createCommentRequest.Title, createCommentRequest.Text);
             _commentRepository.Add(newComment);
@@ -35,30 +35,30 @@ namespace MyBlog.Application.Services
 
         public async Task<CommentDetails> Update(UpdateCommentRequest updateCommentRequest)
         {
-            Comment? comment = await _commentRepository.FindById(updateCommentRequest.Id);
-            if (comment == null)
-                throw new EntityNotFoundException();
+            Comment? commentToUpdate = await _commentRepository.FindById(updateCommentRequest.Id);
+            if (commentToUpdate == null)
+                throw new KeyNotFoundException(nameof(updateCommentRequest.Id));
 
-            User? user = await _userRepository.FindById(comment.UserId);
+            User? user = await _userRepository.FindById(commentToUpdate.UserId);
             if (user == null)
-                throw new EntityNotFoundException();
+                throw new KeyNotFoundException(nameof(commentToUpdate.UserId));
 
-            comment.Text = updateCommentRequest.Text;
-            comment.Title = updateCommentRequest.Title;
-            _commentRepository.Update(comment);
+            commentToUpdate.Text = updateCommentRequest.Text;
+            commentToUpdate.Title = updateCommentRequest.Title;
+            _commentRepository.Update(commentToUpdate);
             await _commentRepository.UnitOfWork.SaveChangesAsync();
-            return Map(comment, user);
+            return Map(commentToUpdate, user);
         }
 
         public async Task<CommentDetails> Delete(long id)
         {
             Comment? comment = await _commentRepository.FindById(id);
             if (comment == null)
-                throw new EntityNotFoundException();
+                throw new KeyNotFoundException(nameof(id));
 
             User? user = await _userRepository.FindById(comment.UserId);
             if (user == null)
-                throw new EntityNotFoundException();
+                throw new KeyNotFoundException(nameof(comment.UserId));
 
             _commentRepository.Delete(comment);
             await _commentRepository.UnitOfWork.SaveChangesAsync();
@@ -69,11 +69,11 @@ namespace MyBlog.Application.Services
         {
             Comment? comment = await _commentRepository.FindById(id);
             if (comment == null)
-                throw new EntityNotFoundException();
+                throw new KeyNotFoundException(nameof(id));
 
             User? user = await _userRepository.FindById(comment.UserId);
             if (user == null)
-                throw new EntityNotFoundException();
+                throw new KeyNotFoundException(nameof(comment.UserId));
 
             return Map(comment, user);
         }
@@ -87,7 +87,7 @@ namespace MyBlog.Application.Services
             {
                 User? user = await _userRepository.FindById(comment.UserId);
                 if (user == null)
-                    throw new EntityNotFoundException();
+                    throw new KeyNotFoundException(nameof(comment.UserId));
                 list.Add(Map(comment, user));
             }
             return list;

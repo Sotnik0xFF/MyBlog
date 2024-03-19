@@ -33,7 +33,7 @@ public class TagService(ITagRepository tagRepository)
         Tag? tagToUpdate = await _tagRepository.FindById(id);
 
         if (tagToUpdate == null)
-            throw new EntityNotFoundException();
+            throw new KeyNotFoundException(nameof(id));
 
         Tag? existedTag = await _tagRepository.FindByValue(newValue);
         if (existedTag != null && tagToUpdate != existedTag)
@@ -51,7 +51,7 @@ public class TagService(ITagRepository tagRepository)
         Tag? tag = await _tagRepository.FindById(id);
 
         if (tag == null)
-            throw new EntityNotFoundException();
+            throw new KeyNotFoundException(nameof(id));
 
         _tagRepository.Delete(tag);
         await _tagRepository.UnitOfWork.SaveChangesAsync();
@@ -64,7 +64,7 @@ public class TagService(ITagRepository tagRepository)
         Tag? tag = await _tagRepository.FindById(id);
 
         if (tag == null)
-            throw new EntityNotFoundException();
+            throw new KeyNotFoundException(nameof(id));
 
         return Map(tag);
     }

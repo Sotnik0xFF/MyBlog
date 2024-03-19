@@ -55,7 +55,7 @@ namespace MyBlog.WebApp.Controllers
             {
                 return BadRequest($"Тэг {name} уже существует.");
             }
-            catch(EntityNotFoundException)
+            catch(KeyNotFoundException)
             {
                 return BadRequest($"Тэг [Id = {id}] не найден.");
             }
@@ -68,7 +68,7 @@ namespace MyBlog.WebApp.Controllers
                 TagViewModel tag = await _tagService.Delete(id);
                 return Ok($"Тэг {tag.Name} удален.");
             }
-            catch (EntityNotFoundException)
+            catch (KeyNotFoundException)
             {
                 return BadRequest($"Тэг [Id = {id}] не найден.");
             }           

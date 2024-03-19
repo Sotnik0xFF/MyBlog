@@ -20,7 +20,7 @@ namespace MyBlog.WebApp.Controllers
             {
                 return Json(await _commentService.FindById(id));
             }
-            catch (EntityNotFoundException)
+            catch (KeyNotFoundException)
             {
                 return BadRequest("Коментарий не найден.");
             }
@@ -45,7 +45,7 @@ namespace MyBlog.WebApp.Controllers
                 await _commentService.Delete(id);
                 return Ok("Коментарий удален.");
             }
-            catch (EntityNotFoundException)
+            catch (KeyNotFoundException)
             {
                 return BadRequest("Коментарий не найден.");
             }

@@ -38,7 +38,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     {
         User? user = await _userRepository.FindById(id);
         if (user == null)
-            throw new EntityNotFoundException();
+            throw new KeyNotFoundException(nameof(id));
 
         return Map(user);
     }
@@ -47,7 +47,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     {
         User? user = await _userRepository.FindByLogin(login);
         if (user == null)
-            throw new EntityNotFoundException();
+            throw new KeyNotFoundException(nameof(login));
 
         return Map(user);
     }
@@ -71,7 +71,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         User? user = await _userRepository.FindById(id);
 
         if (user == null)
-            throw new EntityNotFoundException();
+            throw new KeyNotFoundException(nameof(id));
 
         _userRepository.Delete(user);
         await _userRepository.UnitOfWork.SaveChangesAsync();
@@ -82,7 +82,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     {
         User? user = await _userRepository.FindById(updateUserRequest.Id);
         if (user == null)
-            throw new EntityNotFoundException();
+            throw new KeyNotFoundException(nameof(updateUserRequest.Id));
 
         user.FirstName = updateUserRequest.FirstName;
         user.LastName = updateUserRequest.LastName;

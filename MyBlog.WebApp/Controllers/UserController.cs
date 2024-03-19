@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyBlog.Application.Exceptions;
 using MyBlog.Application.Models;
 using MyBlog.Application.Services;
+using MyBlog.Domain.Models;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -40,13 +41,15 @@ public class UserController(UserService userService) : Controller
     [Authorize(Roles = "Администратор")]
     public async Task<ActionResult> Delete(long id)
     {
-        UserDetails? user = await _userService.Delete(id);
-        if (user == null)
+        try
         {
-            return BadRequest($"Пользователь не найден.");
-        }
-        else
+            UserDetails user = await _userService.Delete(id);
             return Ok($"Пользователь {user.Login} удален.");
+        }
+        catch (KeyNotFoundException)
+        {
+            return BadRequest($"Пользователь [Id = {id}] не найден.");
+        }
     }
 
     public async Task<ActionResult> Details(long id)
@@ -55,7 +58,7 @@ public class UserController(UserService userService) : Controller
         {
             return Json(await _userService.FindById(id), _jsonOptions);
         }
-        catch (EntityNotFoundException)
+        catch (KeyNotFoundException)
         {
             return BadRequest($"Пользователь [Id = {id}] не найден.");
         }
