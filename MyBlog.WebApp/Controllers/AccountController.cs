@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyBlog.Application.Models;
 using MyBlog.Application.Services;
@@ -12,7 +11,14 @@ namespace MyBlog.WebApp.Controllers
     {
         private readonly UserService _userService = userService;
 
-        public async Task<IActionResult> Login(Application.Models.LoginRequest loginRequest)
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginRequest loginRequest)
         {
             if (loginRequest.UserLogin != null && loginRequest.Password != null)
             {
@@ -43,7 +49,6 @@ namespace MyBlog.WebApp.Controllers
             return BadRequest();
         }
 
-        [Authorize]
         public async Task<IActionResult> Logout()
         {
             string currentUserName = HttpContext.User.FindFirstValue(ClaimsIdentity.DefaultNameClaimType) ?? String.Empty;
