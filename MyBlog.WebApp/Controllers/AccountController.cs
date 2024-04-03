@@ -22,31 +22,32 @@ namespace MyBlog.WebApp.Controllers
         {
             if (loginRequest.UserLogin != null && loginRequest.Password != null)
             {
-                UserViewModel user = await _userService.FindByLogin(loginRequest.UserLogin);
-
-                if (await _userService.ValidatePassword(user, loginRequest.Password))
+                try
                 {
-                    List<Claim> claims = new List<Claim>()
+                    UserViewModel user = await _userService.FindByLogin(loginRequest.UserLogin);
+                    if (await _userService.ValidatePassword(user, loginRequest.Password))
+                    {
+                        List<Claim> claims = new List<Claim>()
                     {
                         new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
                     };
 
-                    foreach (var role in user.Roles)
-                    {
-                        claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, role.Name));
-                    }
+                        foreach (var role in user.Roles)
+                        {
+                            claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, role.Name));
+                        }
 
-                    ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
-                    return Ok($"Привет, {user.FirstName} {user.LastName}");
+                        ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
-                else
+                catch (KeyNotFoundException)
                 {
-                    return BadRequest("Неверный логин или пароль.");
                 }
             }
-
-            return BadRequest();
+            ModelState.AddModelError("", "Неверный логин или пароль.");
+            return View(loginRequest);
         }
 
         public async Task<IActionResult> Logout()
