@@ -11,5 +11,7 @@ namespace MyBlog.Application.Models
         public long Id { get; set; }
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
+
+        public string? NewPassword { get; set; }
     }
 }

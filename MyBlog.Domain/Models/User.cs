@@ -30,4 +30,9 @@ public class User : Entity
 
     public void AddRole(Role role) => _roles.Add(role);
     public void RemoveRole(Role role) => _roles.Remove(role);
+
+    public void SetNewPassword(string newPassword)
+    {
+        _password = newPassword;
+    }
 }

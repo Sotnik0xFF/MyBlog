@@ -85,6 +85,10 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
         user.FirstName = updateUserRequest.FirstName;
         user.LastName = updateUserRequest.LastName;
+        if (!String.IsNullOrEmpty(updateUserRequest.NewPassword))
+        {
+            user.SetNewPassword(updateUserRequest.NewPassword);
+        }
         _userRepository.Update(user);
         await _userRepository.UnitOfWork.SaveChangesAsync();
         return Map(user);
