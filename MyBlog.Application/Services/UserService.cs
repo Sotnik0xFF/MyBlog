@@ -16,12 +16,11 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
         User? user = null;
 
-        user = await _userRepository.FindByLogin(createUserRequest.Login);
+        user = await _userRepository.FindByEmail(createUserRequest.Login);
         if (user != null)
             throw new EntityAlreadyExistsException();
 
         user = new User(
-            createUserRequest.Login,
             createUserRequest.Password,
             createUserRequest.FirstName,
             createUserRequest.LastName,
@@ -43,11 +42,11 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         return Map(user);
     }
 
-    public async Task<UserViewModel> FindByLogin(string login)
+    public async Task<UserViewModel> FindByEmail(string email)
     {
-        User? user = await _userRepository.FindByLogin(login);
+        User? user = await _userRepository.FindByEmail(email);
         if (user == null)
-            throw new KeyNotFoundException(nameof(login));
+            throw new KeyNotFoundException(nameof(email));
 
         return Map(user);
     }
@@ -105,7 +104,6 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         UserViewModel userDetails = userDetails = new()
         {
             Id = user.Id,
-            Login = user.Login,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,

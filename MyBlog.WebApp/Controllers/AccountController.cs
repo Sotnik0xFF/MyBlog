@@ -20,16 +20,16 @@ namespace MyBlog.WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequest loginRequest)
         {
-            if (loginRequest.UserLogin != null && loginRequest.Password != null)
+            if (loginRequest.Email != null && loginRequest.Password != null)
             {
                 try
                 {
-                    UserViewModel user = await _userService.FindByLogin(loginRequest.UserLogin);
+                    UserViewModel user = await _userService.FindByEmail(loginRequest.Email);
                     if (await _userService.ValidatePassword(user, loginRequest.Password))
                     {
                         List<Claim> claims = new List<Claim>()
                     {
-                        new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
+                        new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
                     };
 
                         foreach (var role in user.Roles)

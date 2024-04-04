@@ -15,8 +15,6 @@ internal class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.HasAlternateKey(u => u.Login);
-
 		builder.HasMany(u => u.Roles).WithMany().UsingEntity<UserRole>(ur =>
 		{
 			ur.ToTable("users_roles");
@@ -24,8 +22,6 @@ internal class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
 			ur.Property("RoleId").HasColumnName("role_id");
 		});
 
-        //builder.Property("Roles").HasField("_roles");
-		builder.Property("Login").HasField("_login").HasColumnName("login");
         builder.Property("Password").HasField("_password").HasColumnName("password");
         builder.Property("FirstName").HasColumnName("first_name");
         builder.Property("LastName").HasColumnName("last_name");

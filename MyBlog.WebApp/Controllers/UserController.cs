@@ -44,7 +44,7 @@ public class UserController(UserService userService) : Controller
         try
         {
             UserViewModel user = await _userService.Delete(id);
-            return Ok($"Пользователь {user.Login} удален.");
+            return Ok($"Пользователь {user.FirstName} {user.LastName}удален.");
         }
         catch (KeyNotFoundException)
         {

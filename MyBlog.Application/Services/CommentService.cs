@@ -99,7 +99,7 @@ namespace MyBlog.Application.Services
             {
                 Id = comment.Id,
                 PostId = comment.PostId,
-                AuthorName = user.Login,
+                AuthorName = $"{user.FirstName} {user.LastName}",
                 Text = comment.Text,
                 Title = comment.Title
             };

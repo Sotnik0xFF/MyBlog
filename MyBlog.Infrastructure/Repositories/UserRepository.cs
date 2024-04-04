@@ -41,9 +41,9 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-		public async Task<User?> FindByLogin(string login)
+		public async Task<User?> FindByEmail(string email)
 		{
-			User? user = await _context.Users.Where(u => u.Login == login).FirstOrDefaultAsync();
+			User? user = await _context.Users.Where(u => u.Email == email).FirstOrDefaultAsync();
 			LoadRoles(user);
 			return user;
 		}

@@ -8,7 +8,7 @@ namespace MyBlog.Application.Models
 {
     public class LoginRequest
     {
-        public required string UserLogin { get; set; }
+        public required string Email { get; set; }
         public required string Password { get; set; }
     }
 }

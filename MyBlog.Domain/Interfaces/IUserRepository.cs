@@ -14,7 +14,7 @@ namespace MyBlog.Domain.Interfaces
         void Update(User user);
         void Delete(User user);
         Task<User?> FindById(long id);
-		Task<User?> FindByLogin(string login);
+		Task<User?> FindByEmail(string email);
 		Task<IEnumerable<User>> FindAll();
     }
 }
