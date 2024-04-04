@@ -16,7 +16,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
         User? user = null;
 
-        user = await _userRepository.FindByEmail(createUserRequest.Login);
+        user = await _userRepository.FindByEmail(createUserRequest.Email);
         if (user != null)
             throw new EntityAlreadyExistsException();
 

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Mvc;
+using MyBlog.Application.Exceptions;
 using MyBlog.Application.Models;
 using MyBlog.Application.Services;
 using System.Security.Claims;
@@ -55,6 +57,29 @@ namespace MyBlog.WebApp.Controllers
             string currentUserName = HttpContext.User.FindFirstValue(ClaimsIdentity.DefaultNameClaimType) ?? String.Empty;
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(CreateUserRequest createUserRequest)
+        {
+            try
+            {
+                await _userService.Create(createUserRequest);
+                LoginRequest loginRequest = new LoginRequest() { Email = createUserRequest.Email, Password = createUserRequest.Password };
+                return await Login(loginRequest);
+            }
+            catch (EntityAlreadyExistsException)
+            {
+                ModelState.AddModelError("", "E-Mail уже занят.");
+            }
+
+            return View(createUserRequest);
         }
 
     }
