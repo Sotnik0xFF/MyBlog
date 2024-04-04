@@ -19,62 +19,8 @@ public class UserController(UserService userService) : Controller
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
 
-    [Authorize]
-    public async Task<ActionResult> Index()
-    {
-        return Json(await _userService.FindAll(), _jsonOptions);
-    }
+    
 
-    [HttpPost]
-    public async Task<ActionResult> Create(CreateUserRequest createUserRequest)
-    {
-        try
-        {
-            return Json(await _userService.Create(createUserRequest), _jsonOptions);
-        }
-        catch (EntityAlreadyExistsException)
-        {
-            return BadRequest("Пользователь с таким логином или e-mail уже существует.");
-        }
-    }
 
-    [Authorize(Roles = "Администратор")]
-    public async Task<ActionResult> Delete(long id)
-    {
-        try
-        {
-            UserViewModel user = await _userService.Delete(id);
-            return Ok($"Пользователь {user.FirstName} {user.LastName}удален.");
-        }
-        catch (KeyNotFoundException)
-        {
-            return BadRequest($"Пользователь [Id = {id}] не найден.");
-        }
-    }
-
-    public async Task<ActionResult> Details(long id)
-    {
-        try
-        {
-            return Json(await _userService.FindById(id), _jsonOptions);
-        }
-        catch (KeyNotFoundException)
-        {
-            return BadRequest($"Пользователь [Id = {id}] не найден.");
-        }
-    }
-
-    public async Task<ActionResult> Update(UpdateUserRequest updateUserRequest)
-    {
-        try
-        {
-            await _userService.Update(updateUserRequest);
-            return Ok("Информация о пользователе обновлена.");
-        }
-        catch (Exception)
-        {
-            return BadRequest($"Пользователь [Id = {updateUserRequest.Id}] не найден.");
-        }
-        
-    }
+    
 }
