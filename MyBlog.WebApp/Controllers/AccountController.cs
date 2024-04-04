@@ -54,7 +54,7 @@ namespace MyBlog.WebApp.Controllers
         {
             string currentUserName = HttpContext.User.FindFirstValue(ClaimsIdentity.DefaultNameClaimType) ?? String.Empty;
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok($"Возвращайтесь, {currentUserName}");
+            return RedirectToAction("Index", "Home");
         }
 
     }
