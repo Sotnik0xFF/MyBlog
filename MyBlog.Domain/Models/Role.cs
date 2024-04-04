@@ -9,15 +9,17 @@ namespace MyBlog.Domain.Models
 {
     public class Role : Entity
     {
-        public Role(string name)
+        public Role(string name, string description)
         {
             Name = name;
+            Description = description;
         }
 
-        public Role(long id, string name) : this(name)
+        public Role(long id, string name, string description) : this(name, description)
         {
             Id = id;
         }
         public string Name { get; set; }
+        public string Description { get; set; }
     }
 }

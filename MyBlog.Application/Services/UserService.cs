@@ -111,7 +111,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
-            Roles = user.Roles.Select(r => new RoleViewModel(r.Id, r.Name)).ToArray()
+            Roles = user.Roles.Select(r => new RoleViewModel(r.Id, r.Name, r.Description)).ToArray()
         };
         return userDetails;
     }
