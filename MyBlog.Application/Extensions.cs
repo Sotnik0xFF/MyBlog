@@ -26,5 +26,6 @@ public static class Extensions
         services.AddScoped<PostService>();
         services.AddScoped<TagService>();
         services.AddScoped<CommentService>();
+        services.AddScoped<RoleService>();
     }
 }

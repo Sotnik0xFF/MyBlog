@@ -8,5 +8,6 @@ namespace MyBlog.Domain.Interfaces
         Task<Role> GetModeratorRole();
         Task<Role> GetUserRole();
 
+        Task<IEnumerable<Role>> FindAll();
     }
 }

@@ -17,6 +17,11 @@ public class RoleRepository : IRoleRepository
         _context = context;
     }
 
+    public async Task<IEnumerable<Role>> FindAll()
+    {
+        return await _context.Roles.ToListAsync();
+    }
+
     public async Task<Role> GetAdministratorRole()
     {
         Role role = await _context.Roles.FirstAsync(r => r.Id == AdministratorRoleId);

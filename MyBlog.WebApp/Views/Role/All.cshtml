@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Все роли";
+}
+
+@using MyBlog.Application.Models
+@model IEnumerable<RoleViewModel>
+
+@{
+    <h1>@ViewData["Title"]</h1>
+    @foreach (RoleViewModel role in Model)
+    {
+        <div class="card mb-2" style="width: 30rem;">
+            <div class="card-body">
+                    <h5 class="card-title">@role.Name</h5>
+                <p class="card-text">@role.Description</p>
+            </div>
+        </div>
+    }
+}
