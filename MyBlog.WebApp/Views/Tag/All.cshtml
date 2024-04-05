@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Все теги";
+}
+
+@using MyBlog.Application.Models
+@model IEnumerable<TagViewModel>
+
+@{
+    <h1>@ViewData["Title"]</h1>
+    @foreach (TagViewModel tag in Model)
+    {
+        <div class="card mb-2" style="width: 30rem;">
+            <div class="card-body">
+                <h5 class="card-title">@tag.Name</h5>
+            </div>
+        </div>
+    }
+}

@@ -18,10 +18,11 @@ namespace MyBlog.WebApp.Controllers
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping 
         };
 
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> All()
         {
             IEnumerable<TagViewModel> tags = await _tagService.FindAll();
-            return Json(tags, _jsonOptions);
+            return View(tags);
         }
 
         public async Task<IActionResult> ById(long id)
