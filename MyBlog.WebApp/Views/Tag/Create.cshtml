@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Добавление тега";
+}
+
+
+@{
+    <h1>@ViewData["Title"]</h1>
+    <form method="post" autocomplete="off" asp-controller="Tag" asp-action="Create" name="">
+        <div class="row mb-3">
+            <label for="inputTagName" class="col-sm-2 col-form-label">Название тега: </label>
+            <div class="col-sm-10">
+                <input type="text" name="tagName" class="form-control" id="inputTagName">
+            </div>
+        </div>
+
+        <button type="submit" class="mb-3 btn btn-primary bg-gradient">Добавить</button>
+
+        <div class="form-text">
+            <a asp-action="All" asp-controller="Tag">Перейти к списку вех тегов.</a>
+        </div>
+    </form>
+}

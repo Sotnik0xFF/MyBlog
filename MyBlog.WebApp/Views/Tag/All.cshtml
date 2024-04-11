@@ -7,11 +7,14 @@
 
 @{
     <h1>@ViewData["Title"]</h1>
+    <div calss="mb-2 link-primary"><a asp-action="Create" asp-controller="Tag">Добавление тега</a></div>
     @foreach (TagViewModel tag in Model)
     {
         <div class="card mb-2" style="width: 30rem;">
             <div class="card-body">
                 <h5 class="card-title">@tag.Name</h5>
+                <a href="Edit/@tag.Id" class="card-link">Редактировать</a>
+                <a href="Delete/@tag.Id" class="card-link">Удалить</a>
             </div>
         </div>
     }

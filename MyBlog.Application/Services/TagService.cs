@@ -28,18 +28,18 @@ public class TagService(ITagRepository tagRepository)
         return Map(tag);
     }
 
-    public async Task<TagViewModel> Update(long id, string newValue)
+    public async Task<TagViewModel> Update(UpdateTagRequest updateTagRequest)
     {
-        Tag? tagToUpdate = await _tagRepository.FindById(id);
+        Tag? tagToUpdate = await _tagRepository.FindById(updateTagRequest.Id);
 
         if (tagToUpdate == null)
-            throw new KeyNotFoundException(nameof(id));
+            throw new KeyNotFoundException(nameof(updateTagRequest.Id));
 
-        Tag? existedTag = await _tagRepository.FindByValue(newValue);
+        Tag? existedTag = await _tagRepository.FindByValue(updateTagRequest.NewTagName);
         if (existedTag != null && tagToUpdate != existedTag)
             throw new EntityAlreadyExistsException();
 
-        tagToUpdate.Value = newValue;
+        tagToUpdate.Value = updateTagRequest.NewTagName;
         _tagRepository.Update(tagToUpdate);
         await _tagRepository.UnitOfWork.SaveChangesAsync();
 

@@ -39,26 +39,54 @@ namespace MyBlog.WebApp.Controllers
             
         }
 
-        public async Task<IActionResult> Create(string name)
+        [HttpGet]
+        public IActionResult Create()
         {
-            TagViewModel tag = await _tagService.Create(name);
-            return Json(tag, _jsonOptions);
+            return View();
         }
 
-        public async Task<IActionResult> Update(long id, string name)
+        [HttpPost]
+        public async Task<IActionResult> Create(string tagName)
+        {
+            if (tagName != null)
+            {
+                await _tagService.Create(tagName);
+            }
+            return View();
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(long id)
         {
             try
             {
-                TagViewModel tag = await _tagService.Update(id, name);
-                return Ok($"Тэг [Id = {id}] обновлен. Название тега: {name}");
+                TagViewModel tag = await _tagService.FindById(id);
+                UpdateTagRequest updateTagRequest = new() { Id = tag.Id, NewTagName = tag.Name };
+                return View(updateTagRequest);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(UpdateTagRequest updateTagRequest)
+        {
+            try
+            {
+                TagViewModel tag = await _tagService.Update(updateTagRequest);
+                return RedirectToAction("All");
             }
             catch(EntityAlreadyExistsException)
             {
-                return BadRequest($"Тэг {name} уже существует.");
+                ModelState.AddModelError("", "Тег с таким названием уже существует");
+                return View();
             }
             catch(KeyNotFoundException)
             {
-                return BadRequest($"Тэг [Id = {id}] не найден.");
+                return BadRequest($"Тег [Id = {updateTagRequest.Id}] не найден.");
             }
         }
 
@@ -67,7 +95,7 @@ namespace MyBlog.WebApp.Controllers
             try
             {
                 TagViewModel tag = await _tagService.Delete(id);
-                return Ok($"Тэг {tag.Name} удален.");
+                return RedirectToAction("All");
             }
             catch (KeyNotFoundException)
             {
