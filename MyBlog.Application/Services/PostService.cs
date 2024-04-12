@@ -130,6 +130,24 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         return postHeaders;
     }
 
+    public async Task<PostHeaderViewModel> GetPostHeaderById(long id)
+    {
+        Post? post = await _postRepository.FindById(id);
+
+        if (post == null)
+            throw new KeyNotFoundException(nameof(id));
+
+        PostHeaderViewModel postHeader = new()
+        {
+            Id = post.Id,
+            Title = post.Title,
+            Author = await _UserService.FindById(post.UserId),
+            Tags = post.Tags.Select(t => new TagViewModel() { Id = t.Id, Name = t.Value }).ToArray()
+        };
+
+        return postHeader;
+    }
+
     private PostViewModel Map(Post post)
     {
         PostViewModel postDetails = new PostViewModel()

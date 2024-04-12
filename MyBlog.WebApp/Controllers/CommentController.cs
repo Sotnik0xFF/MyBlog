@@ -5,59 +5,39 @@ using MyBlog.Application.Services;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class CommentController(CommentService commentService, UserService userService) : Controller
+    public class CommentController(CommentService commentService, UserService userService, PostService postService) : Controller
     {
         private readonly CommentService _commentService = commentService;
         private readonly UserService _userService = userService;
+        private readonly PostService _postService = postService;
 
         public async Task<IActionResult> All()
         {
-            return Json(await _commentService.FindAll());
+            return View(await _commentService.FindAll());
         }
 
-        public async Task<IActionResult> ById(long id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(long id)
         {
-            try
-            {
-                return Json(await _commentService.FindById(id));
-            }
-            catch (KeyNotFoundException)
-            {
-                return BadRequest("Коментарий не найден.");
-            }
+            CommentViewModel comment = await _commentService.FindById(id);
+            UpdateCommentRequest updateCommentRequest = new() { Id = comment.Id, Text = comment.Text, Title = comment.Title };
+            return View(updateCommentRequest);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(long postId, string? commentTitle, string? commentText)
+        public async Task<IActionResult> Edit(UpdateCommentRequest updateCommentRequest)
         {
-            if (commentTitle == null || commentText == null)
-            {
-                return RedirectToAction("Details", "Post", new { id = postId });
-            }
-
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                UserViewModel user = await _userService.FindByEmail(HttpContext.User.Identity.Name);
-                CreateCommentRequest createCommentRequest = new() { PostId = postId, Title = commentTitle, Text = commentText, UserId = user.Id };
-                await _commentService.Create(createCommentRequest);
-                return RedirectToAction("Details", "Post", new { id = postId } );
-            }
-
-            return BadRequest();
+            await _commentService.Update(updateCommentRequest);
+            return RedirectToAction("All");
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Update(UpdateCommentRequest updateCommentRequest)
-        {
-            return Json(await _commentService.Update(updateCommentRequest));
-        }
+ 
 
         public async Task<IActionResult> Delete(long id)
         {
             try
             {
                 await _commentService.Delete(id);
-                return Ok("Коментарий удален.");
+                return RedirectToAction("All");
             }
             catch (KeyNotFoundException)
             {

@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Все комментарии";
+}
+
+@using MyBlog.Application.Models
+
+@model IEnumerable<CommentViewModel>
+@{
+    <h1>@ViewData["Title"]</h1>
+
+    @foreach (CommentViewModel comment in Model)
+    {
+        <div class="card border-dark w-100 mb-3">
+            <div class="card-header">@comment.Author.FirstName @comment.Author.LastName</div>
+            <div class="card-body">
+                <h5 class="card-title">@comment.Title</h5>
+                <p class="card-text">@comment.Text</p>
+                <a href="Edit/@comment.Id" class="card-link">Редактировать</a>
+                <a href="Delete/@comment.Id" class="card-link">Удалить</a>
+            </div>
+        </div>
+    }
+
+}
