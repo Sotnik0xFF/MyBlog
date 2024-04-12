@@ -9,36 +9,44 @@ namespace MyBlog.WebApp.Controllers
         private readonly PostService _postService = postService;
 
         [HttpPost]
-        public async Task<PostDetails?> Create(CreatePostRequest createPostRequest)
+        public async Task<PostViewModel?> Create(CreatePostRequest createPostRequest)
         {
             return await _postService.Create(createPostRequest);
         }
 
         [HttpPost]
-        public async Task<PostDetails?> Update(UpdatePostRequest updatePostRequest)
+        public async Task<PostViewModel?> Update(UpdatePostRequest updatePostRequest)
         {
             return await _postService.Update(updatePostRequest);
         }
 
-        public async Task<PostDetails?> Delete(long id)
+        public async Task<IActionResult> Delete(long id)
         {
-            PostDetails? post = await _postService.Delete(id);
-
-            return post;
+            PostViewModel? post = await _postService.Delete(id);
+            return RedirectToAction("All");
         }
 
-        public async Task<IEnumerable<PostDetails>> ByAuthorId(long id)
+        [HttpGet]
+        public async Task<IActionResult> Details(long id)
         {
-            IEnumerable<PostDetails> posts = await _postService.FindByAuthorId(id);
+            PostViewModel postViewModel = await _postService.FindById(id);
+
+            return View(postViewModel);
+        }
+
+        public async Task<IEnumerable<PostViewModel>> ByAuthorId(long id)
+        {
+            IEnumerable<PostViewModel> posts = await _postService.FindByAuthorId(id);
 
             return posts;
         }
 
-        public async Task<IEnumerable<PostDetails>> All()
+        [HttpGet]
+        public async Task<IActionResult> All()
         {
-            IEnumerable<PostDetails> posts = await _postService.FindAll();
+            IEnumerable<PostHeaderViewModel> posts = await _postService.GetAllPostHeaders();
 
-            return posts;
+            return View(posts);
         }
     }
 }

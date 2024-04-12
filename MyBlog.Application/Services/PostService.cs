@@ -2,15 +2,19 @@
 using MyBlog.Application.Models;
 using MyBlog.Domain.Interfaces;
 using MyBlog.Domain.Models;
+using System.Linq;
 
 namespace MyBlog.Application.Services;
 
-public class PostService(IPostRepository postRepository, ITagRepository tagRepository)
+public class PostService(IPostRepository postRepository, ITagRepository tagRepository, CommentService commentService, UserService userService)
 {
     private readonly IPostRepository _postRepository = postRepository;
     private readonly ITagRepository _tagRepository = tagRepository;
 
-    public async Task<PostDetails> Create(CreatePostRequest newPostRequest)
+    private readonly CommentService _commentService = commentService;
+    private readonly UserService _UserService = userService;
+
+    public async Task<PostViewModel> Create(CreatePostRequest newPostRequest)
     {
         Post newPost = new(newPostRequest.AuthorId, newPostRequest.Title, newPostRequest.Text);
 
@@ -36,7 +40,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         return Map(newPost);
     }
 
-    public async Task<PostDetails> Update(UpdatePostRequest updatePostRequest)
+    public async Task<PostViewModel> Update(UpdatePostRequest updatePostRequest)
     {
         Post? editablePost = await _postRepository.FindById(updatePostRequest.Id);
 
@@ -68,7 +72,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         return Map(editablePost);
     }
 
-    public async Task<PostDetails> Delete(long id)
+    public async Task<PostViewModel> Delete(long id)
     {
         Post? post = await _postRepository.FindById(id);
 
@@ -80,47 +84,63 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         return Map(post);
     }
 
-    public async Task<IEnumerable<PostDetails>> FindByAuthorId(long authorId)
+    public async Task<IEnumerable<PostViewModel>> FindByAuthorId(long authorId)
     {
         IEnumerable<Post> posts = await _postRepository.FindByUserId(authorId);
 
-        List<PostDetails> postsDetails = new();
+        List<PostViewModel> postsDetails = new();
 
         foreach (Post post in posts)
         {
-            PostDetails model = Map(post);
+            PostViewModel model = Map(post);
             postsDetails.Add(model);
         }
 
         return postsDetails;
     }
 
-    public async Task<IEnumerable<PostDetails>> FindAll()
+    public async Task<PostViewModel> FindById(long id)
+    {
+        Post? post = await _postRepository.FindById(id);
+
+        if (post == null) 
+            throw new KeyNotFoundException(nameof(id));
+
+        return Map(post);
+    }
+
+    public async Task<IEnumerable<PostHeaderViewModel>> GetAllPostHeaders()
     {
         IEnumerable<Post> posts = await _postRepository.FindAll();
 
-        List<PostDetails> postsDetails = new();
+        List<PostHeaderViewModel> postHeaders = new();
 
         foreach (Post post in posts)
         {
-            PostDetails model = Map(post);
-            postsDetails.Add(model);
+            PostHeaderViewModel postHeader = new()
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Author = await _UserService.FindById(post.UserId),
+                Tags = post.Tags.Select(t => new TagViewModel() { Id = t.Id, Name = t.Value }).ToArray()
+            };
+            postHeaders.Add(postHeader);
         }
 
-        return postsDetails;
+        return postHeaders;
     }
 
-    private PostDetails Map(Post post)
+    private PostViewModel Map(Post post)
     {
-        PostDetails postDetails = new PostDetails()
+        PostViewModel postDetails = new PostViewModel()
         {
             Id = post.Id,
-            AuthorId = post.UserId,
+            Author = _UserService.FindById(post.UserId).Result,
             Text = post.Text,
-            Title = post.Title
+            Title = post.Title,
+            Tags = post.Tags.Select(t => new TagViewModel() { Id = t.Id, Name = t.Value }).ToArray(),
+            Comments = _commentService.FindByPostId(post.Id).Result
         };
-
-        postDetails.Tags = post.Tags.Select(t => t.Value).ToList();
 
         return postDetails;
     }

@@ -10,96 +10,92 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Application.Services
 {
-    public class CommentService(ICommentRepository commentRepository, IUserRepository userRepository, IPostRepository postRepository)
+    public class CommentService(ICommentRepository commentRepository, IUserRepository userRepository, IPostRepository postRepository, UserService userService)
     {
         private readonly ICommentRepository _commentRepository = commentRepository;
         private readonly IPostRepository _postRepository = postRepository;
         private readonly IUserRepository _userRepository = userRepository;
 
-        public async Task<CommentDetails> Create(CreateCommentRequest createCommentRequest)
+        private readonly UserService _userService = userService;
+
+        public async Task<CommentViewModel> Create(CreateCommentRequest createCommentRequest)
         {
             Post? post = await _postRepository.FindById(createCommentRequest.PostId);
             if (post == null)
                 throw new KeyNotFoundException(nameof(createCommentRequest.PostId));
 
-            User? user = await _userRepository.FindById(createCommentRequest.UserId);
-            if (user == null)
-                throw new KeyNotFoundException(nameof(createCommentRequest.UserId));
-
-            Comment newComment = new(user.Id, post.Id, createCommentRequest.Title, createCommentRequest.Text);
+            Comment newComment = new(createCommentRequest.UserId, post.Id, createCommentRequest.Title, createCommentRequest.Text);
             _commentRepository.Add(newComment);
             await _commentRepository.UnitOfWork.SaveChangesAsync();
 
-            return Map(newComment, user);
+            return Map(newComment);
         }
 
-        public async Task<CommentDetails> Update(UpdateCommentRequest updateCommentRequest)
+        public async Task<CommentViewModel> Update(UpdateCommentRequest updateCommentRequest)
         {
             Comment? commentToUpdate = await _commentRepository.FindById(updateCommentRequest.Id);
             if (commentToUpdate == null)
                 throw new KeyNotFoundException(nameof(updateCommentRequest.Id));
 
-            User? user = await _userRepository.FindById(commentToUpdate.UserId);
-            if (user == null)
-                throw new KeyNotFoundException(nameof(commentToUpdate.UserId));
 
             commentToUpdate.Text = updateCommentRequest.Text;
             commentToUpdate.Title = updateCommentRequest.Title;
             _commentRepository.Update(commentToUpdate);
             await _commentRepository.UnitOfWork.SaveChangesAsync();
-            return Map(commentToUpdate, user);
+            return Map(commentToUpdate);
         }
 
-        public async Task<CommentDetails> Delete(long id)
+        public async Task<CommentViewModel> Delete(long id)
         {
             Comment? comment = await _commentRepository.FindById(id);
             if (comment == null)
                 throw new KeyNotFoundException(nameof(id));
-
-            User? user = await _userRepository.FindById(comment.UserId);
-            if (user == null)
-                throw new KeyNotFoundException(nameof(comment.UserId));
 
             _commentRepository.Delete(comment);
             await _commentRepository.UnitOfWork.SaveChangesAsync();
-            return Map(comment, user);
+            return Map(comment);
         }
 
-        public async Task<CommentDetails> FindById(long id)
+        public async Task<CommentViewModel> FindById(long id)
         {
             Comment? comment = await _commentRepository.FindById(id);
             if (comment == null)
                 throw new KeyNotFoundException(nameof(id));
 
-            User? user = await _userRepository.FindById(comment.UserId);
-            if (user == null)
-                throw new KeyNotFoundException(nameof(comment.UserId));
-
-            return Map(comment, user);
+            return Map(comment);
         }
 
-        public async Task<IEnumerable<CommentDetails>> FindAll()
+        public async Task<IEnumerable<CommentViewModel>> FindByPostId(long postId)
         {
-            List<CommentDetails> list = new List<CommentDetails>();
+            List<CommentViewModel> list = new List<CommentViewModel>();
 
-            IEnumerable<Comment> comments = await _commentRepository.FindAll();
+            IEnumerable<Comment> comments = await _commentRepository.FindByPostId(postId);
             foreach (Comment comment in comments)
             {
-                User? user = await _userRepository.FindById(comment.UserId);
-                if (user == null)
-                    throw new KeyNotFoundException(nameof(comment.UserId));
-                list.Add(Map(comment, user));
+                list.Add(Map(comment));
             }
             return list;
         }
 
-        private CommentDetails Map(Comment comment, User user) 
+        public async Task<IEnumerable<CommentViewModel>> FindAll()
         {
-            return new CommentDetails()
+            List<CommentViewModel> list = new List<CommentViewModel>();
+
+            IEnumerable<Comment> comments = await _commentRepository.FindAll();
+            foreach (Comment comment in comments)
+            {
+                list.Add(Map(comment));
+            }
+            return list;
+        }
+
+        private CommentViewModel Map(Comment comment) 
+        {
+            return new CommentViewModel()
             {
                 Id = comment.Id,
                 PostId = comment.PostId,
-                AuthorName = $"{user.FirstName} {user.LastName}",
+                Author = _userService.FindById(comment.UserId).Result,
                 Text = comment.Text,
                 Title = comment.Title
             };

@@ -5,9 +5,10 @@ using MyBlog.Application.Services;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class CommentController(CommentService commentService) : Controller
+    public class CommentController(CommentService commentService, UserService userService) : Controller
     {
         private readonly CommentService _commentService = commentService;
+        private readonly UserService _userService = userService;
 
         public async Task<IActionResult> All()
         {
@@ -27,9 +28,22 @@ namespace MyBlog.WebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateCommentRequest createCommentRequest)
+        public async Task<IActionResult> Create(long postId, string? commentTitle, string? commentText)
         {
-            return Json(await _commentService.Create(createCommentRequest));
+            if (commentTitle == null || commentText == null)
+            {
+                return RedirectToAction("Details", "Post", new { id = postId });
+            }
+
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                UserViewModel user = await _userService.FindByEmail(HttpContext.User.Identity.Name);
+                CreateCommentRequest createCommentRequest = new() { PostId = postId, Title = commentTitle, Text = commentText, UserId = user.Id };
+                await _commentService.Create(createCommentRequest);
+                return RedirectToAction("Details", "Post", new { id = postId } );
+            }
+
+            return BadRequest();
         }
 
         [HttpPost]
