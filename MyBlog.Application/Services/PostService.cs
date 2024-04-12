@@ -18,7 +18,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
     {
         Post newPost = new(newPostRequest.AuthorId, newPostRequest.Title, newPostRequest.Text);
 
-        foreach (string tagName in newPostRequest.Tags)
+        foreach (String tagName in newPostRequest.TagNames)
         {
             Tag? foundTag = await _tagRepository.FindByValue(tagName);
             if (foundTag != null)
@@ -49,7 +49,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
 
         editablePost.ClearTags();
 
-        foreach (string tagName in updatePostRequest.Tags)
+        foreach (string tagName in updatePostRequest.TagNames)
         {
             Tag? tag = await _tagRepository.FindByValue(tagName);
             if (tag != null)

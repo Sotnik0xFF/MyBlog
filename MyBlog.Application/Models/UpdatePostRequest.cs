@@ -9,8 +9,8 @@ namespace MyBlog.Application.Models
     public class UpdatePostRequest
     {
         public long Id { get; set; } 
-        public required string Title { get; set; }
-        public required string Text { get; set; }
-        public required IEnumerable<string> Tags { get; set; }
+        public string Title { get; set; } = String.Empty;
+        public string Text { get; set; } = String.Empty;
+        public IEnumerable<string> TagNames { get; set; } = new List<string>();
     }
 }

@@ -8,9 +8,9 @@ namespace MyBlog.Application.Models
 {
     public class CreatePostRequest
     {
-        public required string Title { get; set; }
-        public required string Text { get; set; }
+        public string Title { get; set; } = String.Empty;
+        public string Text { get; set; } = String.Empty;
         public long AuthorId { get; set; }
-        public required IEnumerable<string> Tags { get; set; }
+        public IEnumerable<string> TagNames { get; set; } = new List<String>();
     }
 }

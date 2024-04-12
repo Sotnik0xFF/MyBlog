@@ -10,7 +10,7 @@ namespace MyBlog.WebApp.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("All", "Post");
         }
 
         public IActionResult Privacy()

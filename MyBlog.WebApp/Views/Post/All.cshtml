@@ -7,12 +7,14 @@
 @model IEnumerable<PostHeaderViewModel>
 @{
     <h1>@ViewData["Title"]</h1>
-
+    <div class="mb-3">
+        <a class="" asp-action="Create" asp-controller="Post">Создать статью</a>
+    </div>
     @foreach (PostHeaderViewModel postHeader in Model)
     {
         <div class="card mb-2" style="width: 30rem;">
             <div class="card-body">
-                <a class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="Details/@postHeader.Id">
+                <a class="link-dark link-offset-2 link-underline-opacity-0 link-underline-opacity-0-hover" href="Details/@postHeader.Id">
                     <h5 class="card-title">@postHeader.Title</h5>
                 </a>
                 <div>

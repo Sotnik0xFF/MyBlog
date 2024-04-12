@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Добавление статьи";
+}
+
+@using MyBlog.Application.Models
+@using MyBlog.WebApp.Models
+
+@model CreatePostViewModel
+
+@{
+    <h1>@ViewData["Title"]</h1>
+    <form method="post" autocomplete="off" asp-controller="Post" asp-action="Create">
+        <input type="text" asp-for="Request.AuthorId" hidden/>
+
+        <div class="row mb-3">
+            <label for="selectTags" class="col-sm-3 col-form-label">Теги: </label>
+            <div class="col-sm-10">
+                <select multiple asp-for="Request.TagNames" id="selectTags">
+                    @foreach (TagViewModel tag in Model.AllTags)
+                    {
+                        <option value="@tag.Name">@tag.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label for="inputPostTitle" class="col-sm-3 col-form-label">Название статьи: </label>
+            <div class="col-sm-10">
+                <input type="text" asp-for="Request.Title" class="form-control" id="inputPostTitle">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="inputPostText" class="col-sm-3 col-form-label">Текст: </label>
+            <div class="col-sm-10">
+                <textarea asp-for="Request.Text" class="form-control" id="inputPostText" rows="4"></textarea>
+            </div>
+        </div>
+
+        <button type="submit" class="mb-3 btn btn-primary bg-gradient">Сохранить</button>
+    </form>
+}
