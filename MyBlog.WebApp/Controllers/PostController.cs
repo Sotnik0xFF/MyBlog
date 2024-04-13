@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyBlog.Application.Models;
 using MyBlog.Application.Services;
 using MyBlog.WebApp.Models;
@@ -11,6 +12,7 @@ namespace MyBlog.WebApp.Controllers
         private readonly TagService _tagService = tagService;
         private readonly UserService _userService = userService;
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -28,6 +30,7 @@ namespace MyBlog.WebApp.Controllers
             return BadRequest();
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(CreatePostViewModel createPostViewModel)
         {

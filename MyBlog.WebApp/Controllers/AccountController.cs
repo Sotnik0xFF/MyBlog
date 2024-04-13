@@ -14,6 +14,7 @@ public class AccountController(UserService userService) : Controller
 {
     private readonly UserService _userService = userService;
 
+    [Authorize(Roles = "Администратор")]
     public async Task<IActionResult> All()
     {
         IEnumerable<UserViewModel> users = await _userService.FindAll();
@@ -61,7 +62,6 @@ public class AccountController(UserService userService) : Controller
 
     public async Task<IActionResult> Logout()
     {
-        string currentUserName = HttpContext.User.FindFirstValue(ClaimsIdentity.DefaultNameClaimType) ?? String.Empty;
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Index", "Home");
     }
@@ -89,6 +89,7 @@ public class AccountController(UserService userService) : Controller
         return View(createUserRequest);
     }
 
+    [Authorize(Roles = "Администратор")]
     [HttpGet]
     public async Task<IActionResult> Delete(long id)
     {
@@ -115,6 +116,7 @@ public class AccountController(UserService userService) : Controller
         }
     }
 
+    
     [HttpGet]
     public async Task<IActionResult> Edit(long id)
     {

@@ -7,9 +7,13 @@
 @model IEnumerable<PostHeaderViewModel>
 @{
     <h1>@ViewData["Title"]</h1>
-    <div class="mb-3">
-        <a class="" asp-action="Create" asp-controller="Post">Создать статью</a>
-    </div>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="mb-3">
+            <a class="" asp-action="Create" asp-controller="Post">Создать статью</a>
+        </div>
+    }
+    
     @foreach (PostHeaderViewModel postHeader in Model)
     {
         <div class="card mb-2" style="width: 30rem;">
@@ -23,8 +27,11 @@
                         <span class="badge bg-info mb-2">@tag.Name</span>
                     }
                 </div>
-                <a href="Edit/@postHeader.Id" class="card-link">Редактировать</a>
-                <a href="Delete/@postHeader.Id" class="card-link">Удалить</a>
+                @if (User.IsInRole("Администратор") || User.IsInRole("Модератор"))
+                {
+                    <a href="Edit/@postHeader.Id" class="card-link">Редактировать</a>
+                    <a href="Delete/@postHeader.Id" class="card-link">Удалить</a>
+                }
             </div>
         </div>
     }

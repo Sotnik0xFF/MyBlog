@@ -23,5 +23,20 @@ namespace MyBlog.WebApp.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public IActionResult ExceptionHandler()
+        {
+            return View();
+        }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        public IActionResult PageNotFound()
+        {
+            return View();
+        }
     }
 }

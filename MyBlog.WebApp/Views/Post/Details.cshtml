@@ -26,16 +26,19 @@
             </div>
         </div>
     }
+    @if (User.Identity.IsAuthenticated)
+    {
+        <form method="post" autocomplete="off" asp-controller="Comment" asp-action="Create">
+            <div class="mb-3">
+                <input type="text" name="postId" hidden value="@Model.Id" />
+                <label for="commentTitleInput" class="form-label">Заголовок коментария</label>
+                <input type="text" class="form-control" id="commentTitleInput" name="commentTitle" />
 
-    <form method="post" autocomplete="off" asp-controller="Comment" asp-action="Create">
-        <div class="mb-3">
-            <input type="text" name="postId" hidden value="@Model.Id"/>
-            <label for="commentTitleInput" class="form-label">Заголовок коментария</label>
-            <input type="text" class="form-control" id="commentTitleInput" name="commentTitle" />
-
-            <label for="commentTextInput" class="form-label">Комментарий</label>
-            <textarea class="form-control" id="commentTextInput" rows="3" name="commentText"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary mb-3">Оставить комментрий</button>
-    </form>
+                <label for="commentTextInput" class="form-label">Комментарий</label>
+                <textarea class="form-control" id="commentTextInput" rows="3" name="commentText"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary mb-3">Оставить комментрий</button>
+        </form>
+    }
+    
 }

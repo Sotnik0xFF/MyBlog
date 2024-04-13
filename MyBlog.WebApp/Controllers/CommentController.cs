@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyBlog.Application.Exceptions;
 using MyBlog.Application.Models;
 using MyBlog.Application.Services;
@@ -11,6 +12,7 @@ namespace MyBlog.WebApp.Controllers
         private readonly UserService _userService = userService;
         private readonly PostService _postService = postService;
 
+        [Authorize(Roles ="Администратор, Модератор")]
         public async Task<IActionResult> All()
         {
             return View(await _commentService.FindAll());
