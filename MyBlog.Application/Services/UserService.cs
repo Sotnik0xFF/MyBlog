@@ -79,19 +79,28 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
     public async Task<UserViewModel> Update(UpdateUserRequest updateUserRequest)
     {
-        User? user = await _userRepository.FindById(updateUserRequest.Id);
-        if (user == null)
+        User? updatingUser = await _userRepository.FindById(updateUserRequest.Id);
+        if (updatingUser == null)
             throw new KeyNotFoundException(nameof(updateUserRequest.Id));
 
-        user.FirstName = updateUserRequest.FirstName;
-        user.LastName = updateUserRequest.LastName;
+        updatingUser.FirstName = updateUserRequest.FirstName;
+        updatingUser.LastName = updateUserRequest.LastName;
         if (!String.IsNullOrEmpty(updateUserRequest.NewPassword))
         {
-            user.SetNewPassword(updateUserRequest.NewPassword);
+            updatingUser.SetNewPassword(updateUserRequest.NewPassword);
         }
-        _userRepository.Update(user);
+
+        updatingUser.ClearRoles();
+        IEnumerable<Role> allRoles = await _roleRepository.FindAll();
+        foreach (var userRoleModel in updateUserRequest.Roles)
+        {
+            Role role = allRoles.First(r => r.Id == userRoleModel.Id);
+            updatingUser.AddRole(role);
+        }
+
+        _userRepository.Update(updatingUser);
         await _userRepository.UnitOfWork.SaveChangesAsync();
-        return Map(user);
+        return Map(updatingUser);
     }
 
     public async Task<bool> ValidatePassword(UserViewModel userDetails, string password)

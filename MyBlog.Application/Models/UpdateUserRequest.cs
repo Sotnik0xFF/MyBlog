@@ -13,5 +13,7 @@ namespace MyBlog.Application.Models
         public required string LastName { get; set; }
 
         public string? NewPassword { get; set; }
+
+        public required IEnumerable<RoleViewModel> Roles { get; set; }
     }
 }

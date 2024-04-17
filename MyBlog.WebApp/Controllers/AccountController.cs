@@ -6,13 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 using MyBlog.Application.Exceptions;
 using MyBlog.Application.Models;
 using MyBlog.Application.Services;
+using MyBlog.WebApp.Models;
 using System.Security.Claims;
 
 namespace MyBlog.WebApp.Controllers;
 
-public class AccountController(UserService userService) : Controller
+public class AccountController(UserService userService, RoleService roleService) : Controller
 {
     private readonly UserService _userService = userService;
+    private readonly RoleService _roleService = roleService;
 
     [Authorize(Roles = "Администратор")]
     public async Task<IActionResult> All()
@@ -123,8 +125,10 @@ public class AccountController(UserService userService) : Controller
         try
         {
             UserViewModel user = await _userService.FindById(id);
-            UpdateUserRequest updateUserRequest = new() { Id = user.Id, FirstName = user.FirstName, LastName = user.LastName };
-            return View(updateUserRequest);
+            UpdateUserRequest updateUserRequest = new() { Id = user.Id, FirstName = user.FirstName, LastName = user.LastName, Roles = user.Roles };
+
+            EditUserViewModel model = new EditUserViewModel() { Request = updateUserRequest, AllRoles = await _roleService.FindAll()};
+            return View(model);
         }
         catch(KeyNotFoundException)
         {
@@ -133,16 +137,25 @@ public class AccountController(UserService userService) : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(UpdateUserRequest updateUserRequest)
+    public async Task<IActionResult> Edit(EditUserViewModel model, List<string> roles)
     {
+        model.AllRoles = await _roleService.FindAll();
+        model.Request.Id = model.Id;
+
+        List<RoleViewModel> userRoles = new List<RoleViewModel>();
+        foreach (string roleName in roles) 
+        {
+            userRoles.Add(model.AllRoles.First(r => r.Name == roleName));
+        }
+        model.Request.Roles = userRoles;
         try
         {
-            await _userService.Update(updateUserRequest);
+            await _userService.Update(model.Request);
             return RedirectToAction("Index", "Home");
         }
         catch (Exception)
         {
-            return BadRequest($"Пользователь [Id = {updateUserRequest.Id}] не найден.");
+            return BadRequest($"Пользователь [Id = {model.Request.Id}] не найден.");
         }
     }
 }
