@@ -10,7 +10,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IRoleRepository _roleRepository = roleRepository;
 
-    public async Task<UserViewModel> Create(CreateUserRequest createUserRequest)
+    public async Task<UserDTO> Create(CreateUserRequest createUserRequest)
     {
         Role userRole = await _roleRepository.GetUserRole();
 
@@ -33,7 +33,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         return Map(user);
     }
 
-    public async Task<UserViewModel> FindById(long id)
+    public async Task<UserDTO> FindById(long id)
     {
         User? user = await _userRepository.FindById(id);
         if (user == null)
@@ -42,7 +42,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         return Map(user);
     }
 
-    public async Task<UserViewModel> FindByEmail(string email)
+    public async Task<UserDTO> FindByEmail(string email)
     {
         User? user = await _userRepository.FindByEmail(email);
         if (user == null)
@@ -51,21 +51,21 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         return Map(user);
     }
 
-    public async Task<IEnumerable<UserViewModel>> FindAll()
+    public async Task<IEnumerable<UserDTO>> FindAll()
     {
         var users = await _userRepository.FindAll();
 
-        List<UserViewModel> results = new();
+        List<UserDTO> results = new();
         foreach (var user in users)
         {
-            UserViewModel userDetails = Map(user);
+            UserDTO userDetails = Map(user);
             results.Add(userDetails);
         }
 
         return results;
     }
 
-    public async Task<UserViewModel> Delete(long id)
+    public async Task<UserDTO> Delete(long id)
     {
         User? user = await _userRepository.FindById(id);
 
@@ -77,7 +77,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         return Map(user);
     }
 
-    public async Task<UserViewModel> Update(UpdateUserRequest updateUserRequest)
+    public async Task<UserDTO> Update(UpdateUserRequest updateUserRequest)
     {
         User? updatingUser = await _userRepository.FindById(updateUserRequest.Id);
         if (updatingUser == null)
@@ -103,7 +103,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         return Map(updatingUser);
     }
 
-    public async Task<bool> ValidatePassword(UserViewModel userDetails, string password)
+    public async Task<bool> ValidatePassword(UserDTO userDetails, string password)
     {
         User? user = await _userRepository.FindById(userDetails.Id);
         if (user == null)
@@ -112,16 +112,14 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         return user.Password == password;
     }
 
-    private UserViewModel Map(User user)
+    private UserDTO Map(User user)
     {
-        UserViewModel userDetails = userDetails = new()
-        {
-            Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            Roles = user.Roles.Select(r => new RoleViewModel(r.Id, r.Name, r.Description)).ToArray()
-        };
-        return userDetails;
+        UserDTO userDTO = userDTO = new(
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            user.Email,
+            user.Roles.Select(r => new RoleDTO(r.Id, r.Name, r.Description)).ToArray());
+        return userDTO;
     }
 }

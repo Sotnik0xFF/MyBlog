@@ -13,10 +13,10 @@ public class RoleService(IRoleRepository roleRepository)
 {
     private readonly IRoleRepository _roleRepository = roleRepository;
 
-    public async Task<IEnumerable<RoleViewModel>> FindAll()
+    public async Task<IEnumerable<RoleDTO>> FindAll()
     {
         IEnumerable<Role> roles = await _roleRepository.FindAll();
-        List<RoleViewModel> roleModels = new();
+        List<RoleDTO> roleModels = new();
         foreach (Role role in roles)
         {
             roleModels.Add(Map(role));
@@ -24,8 +24,8 @@ public class RoleService(IRoleRepository roleRepository)
         return roleModels;
     }
 
-    private RoleViewModel Map(Role role)
+    private RoleDTO Map(Role role)
     {
-        return new RoleViewModel(role.Id, role.Name, role.Description);
+        return new RoleDTO(role.Id, role.Name, role.Description);
     }
 }

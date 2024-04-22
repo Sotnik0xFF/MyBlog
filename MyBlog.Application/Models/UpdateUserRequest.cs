@@ -14,6 +14,6 @@ namespace MyBlog.Application.Models
 
         public string? NewPassword { get; set; }
 
-        public required IEnumerable<RoleViewModel> Roles { get; set; }
+        public required IEnumerable<RoleDTO> Roles { get; set; }
     }
 }

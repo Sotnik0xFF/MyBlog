@@ -18,7 +18,7 @@ namespace MyBlog.WebApp.Controllers
         {
             if (HttpContext.User.Identity != null && HttpContext.User.Identity.IsAuthenticated)
             {
-                UserViewModel user = await _userService.FindByEmail(HttpContext.User.Identity.Name);
+                UserDTO user = await _userService.FindByEmail(HttpContext.User.Identity.Name);
                 CreatePostViewModel createPostViewModel = new()
                 {
                     AllTags = await _tagService.FindAll()

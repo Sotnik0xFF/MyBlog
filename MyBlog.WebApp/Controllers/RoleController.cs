@@ -11,7 +11,7 @@ public class RoleController(RoleService roleService) : Controller
 
     public async Task<IActionResult> All()
     {
-        IEnumerable<RoleViewModel> roles = await _roleService.FindAll();
+        IEnumerable<RoleDTO> roles = await _roleService.FindAll();
         return View(roles);
     }
 }

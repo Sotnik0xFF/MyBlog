@@ -19,7 +19,7 @@ public class AccountController(UserService userService, RoleService roleService)
     [Authorize(Roles = "Администратор")]
     public async Task<IActionResult> All()
     {
-        IEnumerable<UserViewModel> users = await _userService.FindAll();
+        IEnumerable<UserDTO> users = await _userService.FindAll();
         return View(users);
     }
 
@@ -36,7 +36,7 @@ public class AccountController(UserService userService, RoleService roleService)
         {
             try
             {
-                UserViewModel user = await _userService.FindByEmail(loginRequest.Email);
+                UserDTO user = await _userService.FindByEmail(loginRequest.Email);
                 if (await _userService.ValidatePassword(user, loginRequest.Password))
                 {
                     List<Claim> claims = new List<Claim>()
@@ -97,7 +97,7 @@ public class AccountController(UserService userService, RoleService roleService)
     {
         try
         {
-            UserViewModel user = await _userService.Delete(id);
+            UserDTO user = await _userService.Delete(id);
             return RedirectToAction("All");
         }
         catch (KeyNotFoundException)
@@ -124,10 +124,16 @@ public class AccountController(UserService userService, RoleService roleService)
     {
         try
         {
-            UserViewModel user = await _userService.FindById(id);
-            UpdateUserRequest updateUserRequest = new() { Id = user.Id, FirstName = user.FirstName, LastName = user.LastName, Roles = user.Roles };
+            UserDTO user = await _userService.FindById(id);
 
-            EditUserViewModel model = new EditUserViewModel() { Request = updateUserRequest, AllRoles = await _roleService.FindAll()};
+            EditUserViewModel model = new EditUserViewModel()
+            {
+                Id = id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                AllRoleNames = _roleService.FindAll().Result.Select(r => r.Name),
+                UserRoleNames = user.Roles.Select(r => r.Name)
+            };
             return View(model);
         }
         catch(KeyNotFoundException)
@@ -137,25 +143,35 @@ public class AccountController(UserService userService, RoleService roleService)
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(EditUserViewModel model, List<string> roles)
+    public async Task<IActionResult> Edit(EditUserViewModel model)
     {
-        model.AllRoles = await _roleService.FindAll();
-        model.Request.Id = model.Id;
+        IEnumerable<RoleDTO> allRoles = await _roleService.FindAll();
 
-        List<RoleViewModel> userRoles = new List<RoleViewModel>();
-        foreach (string roleName in roles) 
+        model.AllRoleNames = allRoles.Select(r => r.Name);
+
+        List<RoleDTO> userRoles = new List<RoleDTO>();
+        foreach (string userRoleName in model.UserRoleNames) 
         {
-            userRoles.Add(model.AllRoles.First(r => r.Name == roleName));
+            userRoles.Add(allRoles.First(r => r.Name == userRoleName));
         }
-        model.Request.Roles = userRoles;
+
         try
         {
-            await _userService.Update(model.Request);
+            UpdateUserRequest request = new()
+            {
+                Id = model.Id,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                NewPassword = model.NewPassword,
+                Roles = userRoles
+            };
+
+            await _userService.Update(request);
             return RedirectToAction("Index", "Home");
         }
         catch (Exception)
         {
-            return BadRequest($"Пользователь [Id = {model.Request.Id}] не найден.");
+            return BadRequest($"Пользователь [Id = {model.Id}] не найден.");
         }
     }
 }

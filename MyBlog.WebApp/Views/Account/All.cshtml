@@ -4,11 +4,11 @@
 
 @using MyBlog.Application.Models
 
-@model IEnumerable<UserViewModel>
+@model IEnumerable<UserDTO>
 @{
     <h1>@ViewData["Title"]</h1>
 
-    @foreach (UserViewModel user in Model)
+    @foreach (UserDTO user in Model)
     {
         <div class="card mb-2" style="width: 30rem;">
             <div class="card-body">
@@ -16,7 +16,7 @@
                     <h5 class="card-title">@user.FirstName @user.LastName</h5>
                 </a>
                 <div>
-                    @foreach (RoleViewModel role in user.Roles)
+                    @foreach (RoleDTO role in user.Roles)
                     {
                         <span class="badge bg-info mb-2">@role.Name</span>
                     }

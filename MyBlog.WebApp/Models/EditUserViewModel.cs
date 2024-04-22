@@ -4,8 +4,11 @@ namespace MyBlog.WebApp.Models
 {
     public class EditUserViewModel
     {
-        public UpdateUserRequest Request { get; set; }
         public long Id { get; set; }
-        public IEnumerable<RoleViewModel> AllRoles { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public string? NewPassword { get; set; }
+        public required IEnumerable<string> UserRoleNames { get; set; }
+        public required IEnumerable<string> AllRoleNames { get; set; }
     }
 }

@@ -8,30 +8,30 @@
 @{
     <h1>@ViewData["Title"]</h1>
     <form method="post" autocomplete="off" asp-controller="Account" asp-action="Edit">
-        @foreach (RoleViewModel role in Model.AllRoles)
+        @foreach (string roleName in Model.AllRoleNames)
         {
-            <input type="checkbox" name="roles" value="@role.Name"
-            @(Model.Request.Roles.Contains(role) ? "checked=\"checked\"" : "") />
+            <input type="checkbox" name="UserRoleNames" value="@roleName"
+            @(Model.UserRoleNames.Contains(roleName) ? "checked=\"checked\"" : "") />
 
-            @role.Name <br />
+            @roleName <br />
         }
 
         <div class="row mb-3">
             <label for="inputFirstName" class="col-sm-2 col-form-label">Имя: </label>
             <div class="col-sm-10">
-                <input type="text" asp-for="Request.FirstName" class="form-control" id="inputFirstName">
+                <input type="text" asp-for="FirstName" class="form-control" id="inputFirstName">
             </div>
         </div>
         <div class="row mb-3">
             <label for="inputLastName" class="col-sm-2 col-form-label">Фамилия: </label>
             <div class="col-sm-10">
-                <input type="text" asp-for="Request.LastName" class="form-control" id="inputLastName">
+                <input type="text" asp-for="LastName" class="form-control" id="inputLastName">
             </div>
         </div>
         <div class="row mb-3">
             <label for="inputNewPassword" class="col-sm-2 col-form-label">Новый пароль: </label>
             <div class="col-sm-10">
-                <input type="password" asp-for="Request.NewPassword" class="form-control" id="inputNewPassword">
+                <input type="password" asp-for="NewPassword" class="form-control" id="inputNewPassword">
             </div>
         </div>
         <button type="submit" class="mb-3 btn btn-primary bg-gradient">Сохранить</button>

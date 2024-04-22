@@ -12,6 +12,6 @@ namespace MyBlog.Application.Models
         public long PostId { get; init; }
         public required string Title { get; init; }
         public required string Text { get; init; }
-        public required UserViewModel Author { get; init; }
+        public required UserDTO Author { get; init; }
     }
 }
