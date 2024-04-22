@@ -6,10 +6,18 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Application.Models;
 
-	public class CreateUserRequest
-	{
-    public required string Password { get; set; }
-    public required string FirstName { get; set; }
-    public required string LastName { get; set; }
-    public required string Email { get; set; }
-	}
+public class CreateUserRequest
+{
+    public CreateUserRequest(string firstName, string lastName, string password, string email)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+        Password = password;
+        Email = email;
+    }
+
+    public string Password { get; }
+    public string FirstName { get; }
+    public string LastName { get; }
+    public string Email { get; }
+}

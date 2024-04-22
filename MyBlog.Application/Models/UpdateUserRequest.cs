@@ -8,12 +8,21 @@ namespace MyBlog.Application.Models
 {
     public class UpdateUserRequest
     {
-        public long Id { get; set; }
-        public required string FirstName { get; set; }
-        public required string LastName { get; set; }
+        public UpdateUserRequest(long id, string firstName, string lastName, string? newPassword, IEnumerable<RoleDTO> roles)
+        {
+            Id = id;
+            FirstName = firstName;
+            LastName = lastName;
+            NewPassword = newPassword;
+            Roles = roles;
+        }
 
-        public string? NewPassword { get; set; }
+        public long Id { get; }
+        public string FirstName { get; }
+        public string LastName { get; }
 
-        public required IEnumerable<RoleDTO> Roles { get; set; }
+        public string? NewPassword { get; }
+
+        public IEnumerable<RoleDTO> Roles { get; }
     }
 }

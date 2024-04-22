@@ -75,20 +75,33 @@ public class AccountController(UserService userService, RoleService roleService)
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register(CreateUserRequest createUserRequest)
+    public async Task<IActionResult> Register(AccountRegisterViewModel accountRegisterViewModel)
     {
-        try
+        if (ModelState.IsValid)
         {
-            await _userService.Create(createUserRequest);
-            LoginRequest loginRequest = new LoginRequest() { Email = createUserRequest.Email, Password = createUserRequest.Password };
-            return await Login(loginRequest);
-        }
-        catch (EntityAlreadyExistsException)
-        {
-            ModelState.AddModelError("", "E-Mail уже занят.");
+            CreateUserRequest request = new(
+                accountRegisterViewModel.FirstName,
+                accountRegisterViewModel.LastName,
+                accountRegisterViewModel.Password,
+                accountRegisterViewModel.Email);
+            try
+            {
+                await _userService.Create(request);
+
+                LoginRequest loginRequest = new LoginRequest()
+                {
+                    Email = accountRegisterViewModel.Email,
+                    Password = accountRegisterViewModel.Password
+                };
+                return await Login(loginRequest);
+            }
+            catch (EntityAlreadyExistsException)
+            {
+                ModelState.AddModelError("Email", "E -Mail уже занят.");
+            }
         }
 
-        return View(createUserRequest);
+        return View(accountRegisterViewModel);
     }
 
     [Authorize(Roles = "Администратор")]
@@ -157,14 +170,12 @@ public class AccountController(UserService userService, RoleService roleService)
 
         try
         {
-            UpdateUserRequest request = new()
-            {
-                Id = model.Id,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                NewPassword = model.NewPassword,
-                Roles = userRoles
-            };
+            UpdateUserRequest request = new(
+                model.Id,
+                model.FirstName,
+                model.LastName,
+                model.NewPassword,
+                userRoles);
 
             await _userService.Update(request);
             return RedirectToAction("Index", "Home");

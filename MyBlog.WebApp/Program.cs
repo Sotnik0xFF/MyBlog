@@ -15,7 +15,11 @@ public class Program
 
         builder.Services.AddAuthorization();
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(
-            options => options.LoginPath = "/Home/AccessDenied");
+            options =>
+            {
+                options.LoginPath = "/Home/AccessDenied";
+                options.AccessDeniedPath = "/Home/AccessDenied";
+            });
 
         var app = builder.Build();
 
