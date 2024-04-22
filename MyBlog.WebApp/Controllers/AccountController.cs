@@ -162,28 +162,33 @@ public class AccountController(UserService userService, RoleService roleService)
 
         model.AllRoleNames = allRoles.Select(r => r.Name);
 
-        List<RoleDTO> userRoles = new List<RoleDTO>();
-        foreach (string userRoleName in model.UserRoleNames) 
+        if (ModelState.IsValid)
         {
-            userRoles.Add(allRoles.First(r => r.Name == userRoleName));
+            try
+            {
+                List<RoleDTO> userRoles = new List<RoleDTO>();
+                foreach (string userRoleName in model.UserRoleNames)
+                {
+                    userRoles.Add(allRoles.First(r => r.Name == userRoleName));
+                }
+                UpdateUserRequest request = new(
+                    model.Id,
+                    model.FirstName,
+                    model.LastName,
+                    model.NewPassword,
+                    userRoles);
+
+                await _userService.Update(request);
+                return RedirectToAction("All");
+            }
+            catch (Exception)
+            {
+                return BadRequest($"Пользователь [Id = {model.Id}] не найден.");
+            }
         }
 
-        try
-        {
-            UpdateUserRequest request = new(
-                model.Id,
-                model.FirstName,
-                model.LastName,
-                model.NewPassword,
-                userRoles);
-
-            await _userService.Update(request);
-            return RedirectToAction("Index", "Home");
-        }
-        catch (Exception)
-        {
-            return BadRequest($"Пользователь [Id = {model.Id}] не найден.");
-        }
+        model.UserRoleNames ??= new List<string>();
+        return View(model);
     }
 }
 
