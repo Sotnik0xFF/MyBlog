@@ -18,7 +18,7 @@ namespace MyBlog.Application.Services
 
         private readonly UserService _userService = userService;
 
-        public async Task<CommentViewModel> Create(CreateCommentRequest createCommentRequest)
+        public async Task<CommentDTO> Create(CreateCommentRequest createCommentRequest)
         {
             Post? post = await _postRepository.FindById(createCommentRequest.PostId);
             if (post == null)
@@ -31,7 +31,7 @@ namespace MyBlog.Application.Services
             return Map(newComment);
         }
 
-        public async Task<CommentViewModel> Update(UpdateCommentRequest updateCommentRequest)
+        public async Task<CommentDTO> Update(UpdateCommentRequest updateCommentRequest)
         {
             Comment? commentToUpdate = await _commentRepository.FindById(updateCommentRequest.Id);
             if (commentToUpdate == null)
@@ -45,7 +45,7 @@ namespace MyBlog.Application.Services
             return Map(commentToUpdate);
         }
 
-        public async Task<CommentViewModel> Delete(long id)
+        public async Task<CommentDTO> Delete(long id)
         {
             Comment? comment = await _commentRepository.FindById(id);
             if (comment == null)
@@ -56,7 +56,7 @@ namespace MyBlog.Application.Services
             return Map(comment);
         }
 
-        public async Task<CommentViewModel> FindById(long id)
+        public async Task<CommentDTO> FindById(long id)
         {
             Comment? comment = await _commentRepository.FindById(id);
             if (comment == null)
@@ -65,9 +65,9 @@ namespace MyBlog.Application.Services
             return Map(comment);
         }
 
-        public async Task<IEnumerable<CommentViewModel>> FindByPostId(long postId)
+        public async Task<IEnumerable<CommentDTO>> FindByPostId(long postId)
         {
-            List<CommentViewModel> list = new List<CommentViewModel>();
+            List<CommentDTO> list = new List<CommentDTO>();
 
             IEnumerable<Comment> comments = await _commentRepository.FindByPostId(postId);
             foreach (Comment comment in comments)
@@ -77,9 +77,9 @@ namespace MyBlog.Application.Services
             return list;
         }
 
-        public async Task<IEnumerable<CommentViewModel>> FindAll()
+        public async Task<IEnumerable<CommentDTO>> FindAll()
         {
-            List<CommentViewModel> list = new List<CommentViewModel>();
+            List<CommentDTO> list = new List<CommentDTO>();
 
             IEnumerable<Comment> comments = await _commentRepository.FindAll();
             foreach (Comment comment in comments)
@@ -89,16 +89,14 @@ namespace MyBlog.Application.Services
             return list;
         }
 
-        private CommentViewModel Map(Comment comment) 
+        private CommentDTO Map(Comment comment) 
         {
-            return new CommentViewModel()
-            {
-                Id = comment.Id,
-                PostId = comment.PostId,
-                Author = _userService.FindById(comment.UserId).Result,
-                Text = comment.Text,
-                Title = comment.Title
-            };
+            return new CommentDTO(
+                comment.Id,
+                comment.PostId,
+                comment.UserId,
+                comment.Title,
+                comment.Text);
         }
     }
 }

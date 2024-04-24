@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using MyBlog.Application.Exceptions;
 using MyBlog.Application.Models;
 using MyBlog.Application.Services;
+using MyBlog.Domain.Models;
+using MyBlog.WebApp.Models;
+using System.Collections.Generic;
 
 namespace MyBlog.WebApp.Controllers
 {
@@ -15,13 +18,23 @@ namespace MyBlog.WebApp.Controllers
         [Authorize(Roles ="Администратор, Модератор")]
         public async Task<IActionResult> All()
         {
-            return View(await _commentService.FindAll());
+            IEnumerable<CommentDTO> comments = await _commentService.FindAll();
+
+            IEnumerable<CommentViewModel> model = comments.Select(c => new CommentViewModel()
+            {
+                Id = c.Id,
+                Text = c.Text,
+                Title = c.Title,
+                UserFirstName = _userService.FindById(c.UserId).Result.FirstName,
+                UserLastName = _userService.FindById(c.UserId).Result.LastName
+            });
+            return View(model);
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
-            CommentViewModel comment = await _commentService.FindById(id);
+            CommentDTO comment = await _commentService.FindById(id);
             UpdateCommentRequest updateCommentRequest = new() { Id = comment.Id, Text = comment.Text, Title = comment.Title };
             return View(updateCommentRequest);
         }
@@ -29,10 +42,24 @@ namespace MyBlog.WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(UpdateCommentRequest updateCommentRequest)
         {
-            await _commentService.Update(updateCommentRequest);
-            return RedirectToAction("All");
+            if (updateCommentRequest.Title == null)
+            {
+                ModelState.AddModelError("", "Укажите заголовок комментария.");
+            }
+
+            if (updateCommentRequest.Text == null)
+            {
+                ModelState.AddModelError("", "Комментарий не должен быть пустым.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                await _commentService.Update(updateCommentRequest);
+                return RedirectToAction("All");
+            }
+            
+            return View(updateCommentRequest);
         }
- 
 
         public async Task<IActionResult> Delete(long id)
         {

@@ -4,22 +4,22 @@
 
 @using MyBlog.Application.Models
 
-@model PostViewModel
+@model PostDetailsViewModel
 @{
     <h1>@ViewData["Title"]</h1>
     <div>
-        @foreach (TagViewModel tag in Model.Tags)
+        @foreach (string tagName in Model.Tags)
         {
-            <span class="badge bg-info mb-2">@tag.Name</span>
+            <span class="badge bg-info mb-2">@tagName</span>
         }
     </div>
     <div>@Model.Text</div>
-    <div class="text-end">@Model.Author.FirstName @Model.Author.LastName</div>
+    <div class="text-end">@Model.AuthorFirstName @Model.AuthorLastName</div>
     <h5>Комментарии к статье:</h5>
     @foreach (CommentViewModel comment in Model.Comments)
     {
         <div class="card border-dark w-100 mb-3">
-            <div class="card-header">@comment.Author.FirstName @comment.Author.LastName</div>
+            <div class="card-header">@comment.UserFirstName @comment.UserLastName</div>
             <div class="card-body">
                 <h5 class="card-title">@comment.Title</h5>
                 <p class="card-text">@comment.Text</p>
@@ -28,15 +28,16 @@
     }
     @if (User.Identity != null && User.Identity.IsAuthenticated)
     {
-        <form method="post" autocomplete="off" asp-controller="Comment" asp-action="Create">
+        <form method="post" autocomplete="off" asp-action="Details">
             <div class="mb-3">
-                <input type="text" name="postId" hidden value="@Model.Id" />
+                <input type="text" name="PostId" hidden value="@Model.Id" />
                 <label for="commentTitleInput" class="form-label">Заголовок коментария</label>
-                <input type="text" class="form-control" id="commentTitleInput" name="commentTitle" />
+                <input type="text" class="form-control" asp-for="commentTitle" />
 
                 <label for="commentTextInput" class="form-label">Комментарий</label>
-                <textarea class="form-control" id="commentTextInput" rows="3" name="commentText"></textarea>
+                <textarea class="form-control" id="commentTextInput" rows="3" asp-for="commentText"></textarea>
             </div>
+            <div class="mb-3 text-danger" asp-validation-summary="ModelOnly"></div>
             <button type="submit" class="btn btn-primary mb-3">Оставить комментрий</button>
         </form>
     }

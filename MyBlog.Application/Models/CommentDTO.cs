@@ -6,19 +6,21 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Application.Models
 {
-    public class CreateCommentRequest
+    public record CommentDTO
     {
-        public CreateCommentRequest(long userId, long postId, string title, string text)
+        public CommentDTO(long id, long postId, long userId, string title, string text)
         {
-            UserId = userId;
+            Id = id;
             PostId = postId;
+            UserId = userId;
             Title = title;
             Text = text;
         }
 
-        public string Title { get;}
+        public long Id { get; }
+        public long PostId { get; }
+        public string Title { get; }
         public string Text { get; }
         public long UserId { get; }
-        public long PostId { get; }
     }
 }

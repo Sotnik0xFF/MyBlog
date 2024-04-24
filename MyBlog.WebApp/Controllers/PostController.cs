@@ -6,11 +6,12 @@ using MyBlog.WebApp.Models;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class PostController(PostService postService, TagService tagService, UserService userService) : Controller
+    public class PostController(PostService postService, TagService tagService, UserService userService, CommentService commentService) : Controller
     {
         private readonly PostService _postService = postService;
         private readonly TagService _tagService = tagService;
         private readonly UserService _userService = userService;
+        private readonly CommentService _commentService = commentService;
 
         [Authorize]
         [HttpGet]
@@ -55,14 +56,14 @@ namespace MyBlog.WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
-            PostViewModel updatingPost = await _postService.FindById(id);
+            PostDTO updatingPost = await _postService.FindById(id);
 
             EditPostViewModel editPostViewModel = new()
             {
                 Id = updatingPost.Id,
                 Text = updatingPost.Title,
                 Title = updatingPost.Text,
-                PostTagNames = updatingPost.Tags.Select(x => x.Name),
+                PostTagNames = updatingPost.Tags,
                 AllTagNames = _tagService.FindAll().Result.Select(x => x.Name)
             };
 
@@ -87,16 +88,83 @@ namespace MyBlog.WebApp.Controllers
 
         public async Task<IActionResult> Delete(long id)
         {
-            PostViewModel? post = await _postService.Delete(id);
+            PostDTO? post = await _postService.Delete(id);
             return RedirectToAction("All");
         }
 
         [HttpGet]
         public async Task<IActionResult> Details(long id)
         {
-            PostViewModel postViewModel = await _postService.FindById(id);
+            PostDTO post = await _postService.FindById(id);
+            UserDTO user = await _userService.FindById(post.AuthorId);
+            IEnumerable<CommentDTO> comments = await _commentService.FindByPostId(post.Id);
 
-            return View(postViewModel);
+            PostDetailsViewModel postDetailsViewModel = new PostDetailsViewModel()
+            {
+                Id = post.Id,
+                Title = post.Title,
+                AuthorId = post.AuthorId,
+                AuthorFirstName = user.FirstName,
+                AuthorLastName = user.LastName,
+                Comments = comments.Select(c => new CommentViewModel()
+                {
+                    Id = c.Id,
+                    Text = c.Text,
+                    Title = c.Title,
+                    UserFirstName = _userService.FindById(c.UserId).Result.FirstName,
+                    UserLastName = _userService.FindById(c.UserId).Result.LastName
+                }),
+                Text = post.Text,
+                Tags = post.Tags
+            };
+
+            return View(postDetailsViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Details(PostDetailsViewModel postDetailsViewModel)
+        {
+            if (postDetailsViewModel.commentTitle == null)
+            {
+                ModelState.AddModelError("", "Укажите заголовок комментария.");
+            }
+
+            if (postDetailsViewModel.commentText == null)
+            {
+                ModelState.AddModelError("", "Комментарий не должен быть пустым.");
+            }
+
+            if (ModelState.IsValid && HttpContext.User.Identity != null && HttpContext.User.Identity.Name != null) 
+            {
+                UserDTO user = await _userService.FindByEmail(HttpContext.User.Identity.Name);
+                CreateCommentRequest createCommentRequest = new CreateCommentRequest(user.Id, postDetailsViewModel.Id, postDetailsViewModel.commentTitle!, postDetailsViewModel.commentText!);
+                postDetailsViewModel.commentTitle = String.Empty;
+                postDetailsViewModel.commentText = String.Empty;
+                await _commentService.Create(createCommentRequest);
+                return RedirectToAction("Details", new { Id = postDetailsViewModel.Id });
+            }
+
+            PostDTO post = await _postService.FindById(postDetailsViewModel.Id);
+            UserDTO author = await _userService.FindById(post.AuthorId);
+            IEnumerable<CommentDTO> comments = await _commentService.FindByPostId(post.Id);
+
+            postDetailsViewModel.Title = post.Title;
+            postDetailsViewModel.AuthorId = post.AuthorId;
+            postDetailsViewModel.AuthorFirstName = author.FirstName;
+            postDetailsViewModel.AuthorLastName = author.LastName;
+            postDetailsViewModel.Comments = comments.Select(c => new CommentViewModel()
+            {
+                Id = c.Id,
+                Text = c.Text,
+                Title = c.Title,
+                UserFirstName = _userService.FindById(c.UserId).Result.FirstName,
+                UserLastName = _userService.FindById(c.UserId).Result.LastName
+            });
+            postDetailsViewModel.Text = post.Text;
+            postDetailsViewModel.Tags = post.Tags;
+
+
+            return View(postDetailsViewModel);
         }
 
         [HttpGet]

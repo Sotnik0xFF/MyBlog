@@ -14,7 +14,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
     private readonly CommentService _commentService = commentService;
     private readonly UserService _UserService = userService;
 
-    public async Task<PostViewModel> Create(CreatePostRequest newPostRequest)
+    public async Task<PostDTO> Create(CreatePostRequest newPostRequest)
     {
         Post newPost = new(newPostRequest.AuthorId, newPostRequest.Title, newPostRequest.Text);
 
@@ -40,7 +40,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         return Map(newPost);
     }
 
-    public async Task<PostViewModel> Update(UpdatePostRequest updatePostRequest)
+    public async Task<PostDTO> Update(UpdatePostRequest updatePostRequest)
     {
         Post? editablePost = await _postRepository.FindById(updatePostRequest.PostId);
 
@@ -72,7 +72,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         return Map(editablePost);
     }
 
-    public async Task<PostViewModel> Delete(long id)
+    public async Task<PostDTO> Delete(long id)
     {
         Post? post = await _postRepository.FindById(id);
 
@@ -84,22 +84,22 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         return Map(post);
     }
 
-    public async Task<IEnumerable<PostViewModel>> FindByAuthorId(long authorId)
+    public async Task<IEnumerable<PostDTO>> FindByAuthorId(long authorId)
     {
         IEnumerable<Post> posts = await _postRepository.FindByUserId(authorId);
 
-        List<PostViewModel> postsDetails = new();
+        List<PostDTO> postsDetails = new();
 
         foreach (Post post in posts)
         {
-            PostViewModel model = Map(post);
+            PostDTO model = Map(post);
             postsDetails.Add(model);
         }
 
         return postsDetails;
     }
 
-    public async Task<PostViewModel> FindById(long id)
+    public async Task<PostDTO> FindById(long id)
     {
         Post? post = await _postRepository.FindById(id);
 
@@ -148,18 +148,10 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
         return postHeader;
     }
 
-    private PostViewModel Map(Post post)
+    private PostDTO Map(Post post)
     {
-        PostViewModel postDetails = new PostViewModel()
-        {
-            Id = post.Id,
-            Author = _UserService.FindById(post.UserId).Result,
-            Text = post.Text,
-            Title = post.Title,
-            Tags = post.Tags.Select(t => new TagViewModel() { Id = t.Id, Name = t.Value }).ToArray(),
-            Comments = _commentService.FindByPostId(post.Id).Result
-        };
+        PostDTO postDTO = new PostDTO(post.Id, post.UserId, post.Title, post.Text, post.Tags.Select(t => t.Value));
 
-        return postDetails;
+        return postDTO;
     }
 }

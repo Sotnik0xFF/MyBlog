@@ -17,6 +17,7 @@
             <label for="commentTextInput" class="form-label">Комментарий</label>
             <textarea class="form-control" id="commentTextInput" rows="3" asp-for="Text"></textarea>
         </div>
+        <div class="mb-3 text-danger" asp-validation-summary="ModelOnly"></div>
         <button type="submit" class="btn btn-primary mb-3">Сохранить</button>
     </form>
 
