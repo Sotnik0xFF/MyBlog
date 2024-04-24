@@ -42,10 +42,10 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
 
     public async Task<PostViewModel> Update(UpdatePostRequest updatePostRequest)
     {
-        Post? editablePost = await _postRepository.FindById(updatePostRequest.Id);
+        Post? editablePost = await _postRepository.FindById(updatePostRequest.PostId);
 
         if (editablePost == null)
-            throw new KeyNotFoundException(nameof(updatePostRequest.Id));
+            throw new KeyNotFoundException(nameof(updatePostRequest.PostId));
 
         editablePost.ClearTags();
 

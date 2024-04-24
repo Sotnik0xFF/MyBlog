@@ -4,13 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyBlog.Application.Models
+namespace MyBlog.Application.Models;
+
+public class UpdatePostRequest
 {
-    public class UpdatePostRequest
+    public UpdatePostRequest(long postId, string title, string text, IEnumerable<string> tagNames)
     {
-        public long Id { get; set; } 
-        public string Title { get; set; } = String.Empty;
-        public string Text { get; set; } = String.Empty;
-        public IEnumerable<string> TagNames { get; set; } = new List<string>();
+        PostId = postId;
+        Title = title;
+        Text = text;
+        TagNames = tagNames;
     }
+
+    public long PostId { get; } 
+    public string Title { get; }
+    public string Text { get; }
+    public IEnumerable<string> TagNames { get; }
 }

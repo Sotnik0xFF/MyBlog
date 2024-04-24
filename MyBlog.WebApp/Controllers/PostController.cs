@@ -16,14 +16,16 @@ namespace MyBlog.WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            if (HttpContext.User.Identity != null && HttpContext.User.Identity.IsAuthenticated)
+            if (HttpContext.User.Identity != null && HttpContext.User.Identity.Name != null && HttpContext.User.Identity.IsAuthenticated)
             {
                 UserDTO user = await _userService.FindByEmail(HttpContext.User.Identity.Name);
                 CreatePostViewModel createPostViewModel = new()
                 {
-                    AllTags = await _tagService.FindAll()
+                    AuthorId = user.Id,
+                    AllTagNames = _tagService.FindAll().Result.Select(t => t.Name),
+                    Text = String.Empty,
+                    Title = String.Empty,
                 };
-                createPostViewModel.Request.AuthorId = user.Id;
                 return View(createPostViewModel);
             }
 
@@ -34,13 +36,20 @@ namespace MyBlog.WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreatePostViewModel createPostViewModel)
         {
-            if (createPostViewModel.Request.Title == null || createPostViewModel.Request.Text == null)
+            createPostViewModel.AllTagNames = _tagService.FindAll().Result.Select(t => t.Name);
+
+            if (ModelState.IsValid)
             {
-                createPostViewModel.AllTags = await _tagService.FindAll();
-                return View(createPostViewModel);
+                CreatePostRequest createPostRequest = new CreatePostRequest(
+                    createPostViewModel.AuthorId,
+                    createPostViewModel.Title,
+                    createPostViewModel.Text,
+                    createPostViewModel.PostTagNames);
+
+                await _postService.Create(createPostRequest);
+                return RedirectToAction("All");
             }
-            await _postService.Create(createPostViewModel.Request);
-            return RedirectToAction("All");
+            return View(createPostViewModel);
         }
 
         [HttpGet]
@@ -48,12 +57,14 @@ namespace MyBlog.WebApp.Controllers
         {
             PostViewModel updatingPost = await _postService.FindById(id);
 
-            EditPostViewModel editPostViewModel = new() { AllTags = await _tagService.FindAll() };
-
-            editPostViewModel.Request.Id = updatingPost.Id;
-            editPostViewModel.Request.Title = updatingPost.Title;
-            editPostViewModel.Request.Text = updatingPost.Text;
-            editPostViewModel.Request.TagNames = updatingPost.Tags.Select(x => x.Name).ToArray();
+            EditPostViewModel editPostViewModel = new()
+            {
+                Id = updatingPost.Id,
+                Text = updatingPost.Title,
+                Title = updatingPost.Text,
+                PostTagNames = updatingPost.Tags.Select(x => x.Name),
+                AllTagNames = _tagService.FindAll().Result.Select(x => x.Name)
+            };
 
             return View(editPostViewModel);
         }
@@ -61,10 +72,17 @@ namespace MyBlog.WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(EditPostViewModel editPostViewModel)
         {
-            editPostViewModel.AllTags = await _tagService.FindAll();
+            editPostViewModel.AllTagNames = _tagService.FindAll().Result.Select(x => x.Name);
 
-            await _postService.Update(editPostViewModel.Request);
-            return RedirectToAction("All");
+            if (ModelState.IsValid)
+            {
+                UpdatePostRequest request = new UpdatePostRequest(editPostViewModel.Id, editPostViewModel.Title, editPostViewModel.Text, editPostViewModel.PostTagNames);
+                await _postService.Update(request);
+                return RedirectToAction("All");
+            }
+
+
+            return View(editPostViewModel);
         }
 
         public async Task<IActionResult> Delete(long id)

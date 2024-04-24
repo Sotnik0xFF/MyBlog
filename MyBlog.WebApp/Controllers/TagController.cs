@@ -51,7 +51,9 @@ namespace MyBlog.WebApp.Controllers
             if (tagName != null)
             {
                 await _tagService.Create(tagName);
+                return RedirectToAction("All");
             }
+            ModelState.AddModelError("", "Введите название тега");
             return View();
         }
 
@@ -74,6 +76,11 @@ namespace MyBlog.WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(UpdateTagRequest updateTagRequest)
         {
+            if (updateTagRequest.NewTagName == null)
+            {
+                ModelState.AddModelError("", "Введите название тега");
+                return View();
+            }
             try
             {
                 TagViewModel tag = await _tagService.Update(updateTagRequest);
@@ -82,7 +89,7 @@ namespace MyBlog.WebApp.Controllers
             catch(EntityAlreadyExistsException)
             {
                 ModelState.AddModelError("", "Тег с таким названием уже существует");
-                return View();
+                return View(updateTagRequest);
             }
             catch(KeyNotFoundException)
             {

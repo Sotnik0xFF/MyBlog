@@ -4,13 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyBlog.Application.Models
+namespace MyBlog.Application.Models;
+
+public class CreatePostRequest
 {
-    public class CreatePostRequest
+    public CreatePostRequest(long authorId, string title, string text, IEnumerable<string> tagNames)
     {
-        public string Title { get; set; } = String.Empty;
-        public string Text { get; set; } = String.Empty;
-        public long AuthorId { get; set; }
-        public IEnumerable<string> TagNames { get; set; } = new List<String>();
+        Title = title;
+        Text = text;
+        TagNames = tagNames;
+        AuthorId = authorId;
     }
+
+    public string Title { get; }
+    public string Text { get; }
+    public long AuthorId { get; }
+    public IEnumerable<string> TagNames { get; }
 }

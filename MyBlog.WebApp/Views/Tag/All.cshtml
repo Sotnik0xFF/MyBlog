@@ -7,7 +7,7 @@
 
 @{
     <h1>@ViewData["Title"]</h1>
-    @if (User.Identity.IsAuthenticated)
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
     {
         <div calss="mb-2 link-primary"><a asp-action="Create" asp-controller="Tag">Добавление тега</a></div>
     }

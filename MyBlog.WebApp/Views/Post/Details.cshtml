@@ -26,7 +26,7 @@
             </div>
         </div>
     }
-    @if (User.Identity.IsAuthenticated)
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
     {
         <form method="post" autocomplete="off" asp-controller="Comment" asp-action="Create">
             <div class="mb-3">
