@@ -61,8 +61,8 @@ namespace MyBlog.WebApp.Controllers
             EditPostViewModel editPostViewModel = new()
             {
                 Id = updatingPost.Id,
-                Text = updatingPost.Title,
-                Title = updatingPost.Text,
+                Text = updatingPost.Text,
+                Title = updatingPost.Title,
                 PostTagNames = updatingPost.Tags,
                 AllTagNames = _tagService.FindAll().Result.Select(x => x.Name)
             };
@@ -103,6 +103,7 @@ namespace MyBlog.WebApp.Controllers
             {
                 Id = post.Id,
                 Title = post.Title,
+                Text = post.Text,
                 AuthorId = post.AuthorId,
                 AuthorFirstName = user.FirstName,
                 AuthorLastName = user.LastName,
@@ -114,7 +115,7 @@ namespace MyBlog.WebApp.Controllers
                     UserFirstName = _userService.FindById(c.UserId).Result.FirstName,
                     UserLastName = _userService.FindById(c.UserId).Result.LastName
                 }),
-                Text = post.Text,
+                
                 Tags = post.Tags
             };
 
@@ -149,6 +150,7 @@ namespace MyBlog.WebApp.Controllers
             IEnumerable<CommentDTO> comments = await _commentService.FindByPostId(post.Id);
 
             postDetailsViewModel.Title = post.Title;
+            postDetailsViewModel.Text = post.Text;
             postDetailsViewModel.AuthorId = post.AuthorId;
             postDetailsViewModel.AuthorFirstName = author.FirstName;
             postDetailsViewModel.AuthorLastName = author.LastName;
@@ -160,7 +162,7 @@ namespace MyBlog.WebApp.Controllers
                 UserFirstName = _userService.FindById(c.UserId).Result.FirstName,
                 UserLastName = _userService.FindById(c.UserId).Result.LastName
             });
-            postDetailsViewModel.Text = post.Text;
+            
             postDetailsViewModel.Tags = post.Tags;
 
 
