@@ -6,15 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 using MyBlog.Application.Exceptions;
 using MyBlog.Application.Models;
 using MyBlog.Application.Services;
+using MyBlog.Domain.Models;
 using MyBlog.WebApp.Models;
 using System.Security.Claims;
 
 namespace MyBlog.WebApp.Controllers;
 
-public class AccountController(UserService userService, RoleService roleService) : Controller
+public class AccountController(UserService userService, RoleService roleService, ILogger<AccountController> logger) : Controller
 {
     private readonly UserService _userService = userService;
     private readonly RoleService _roleService = roleService;
+    private readonly ILogger<AccountController> _logger = logger;
 
     [Authorize(Roles = "Администратор")]
     public async Task<IActionResult> All()
@@ -40,9 +42,9 @@ public class AccountController(UserService userService, RoleService roleService)
                 if (await _userService.ValidatePassword(user, loginRequest.Password))
                 {
                     List<Claim> claims = new List<Claim>()
-                {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
-                };
+                    {
+                        new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
+                    };
 
                     foreach (var role in user.Roles)
                     {
@@ -51,11 +53,17 @@ public class AccountController(UserService userService, RoleService roleService)
 
                     ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+                    _logger.LogInformation($"Пользователь ID {user.Id}: успешный вход.");
                     return RedirectToAction("Index", "Home");
+                }
+                else 
+                {
+                    _logger.LogInformation($"Пользователь ID {user.Id}: Неверный пароль.");
                 }
             }
             catch (KeyNotFoundException)
             {
+                _logger.LogInformation($"Пользователь {loginRequest.Email} не найден.");
             }
         }
         ModelState.AddModelError("", "Неверный логин или пароль.");
@@ -86,8 +94,8 @@ public class AccountController(UserService userService, RoleService roleService)
                 accountRegisterViewModel.Email);
             try
             {
-                await _userService.Create(request);
-
+                UserDTO createdUser = await _userService.Create(request);
+                _logger.LogInformation($"Зарегистрирован новый пользователь {createdUser.Email}.");
                 LoginRequest loginRequest = new LoginRequest()
                 {
                     Email = accountRegisterViewModel.Email,
@@ -111,11 +119,14 @@ public class AccountController(UserService userService, RoleService roleService)
         try
         {
             UserDTO user = await _userService.Delete(id);
+            _logger.LogInformation($"Пользователь ID {id} удален");
             return RedirectToAction("All");
         }
         catch (KeyNotFoundException)
         {
-            return BadRequest($"Пользователь [Id = {id}] не найден.");
+            string errorMessage = $"Пользователь [Id = {id}] не найден.";
+            _logger.LogError(errorMessage);
+            return BadRequest(errorMessage);
         }
     }
 
@@ -127,7 +138,9 @@ public class AccountController(UserService userService, RoleService roleService)
         }
         catch (KeyNotFoundException)
         {
-            return BadRequest($"Пользователь [Id = {id}] не найден.");
+            string errorMessage = $"Пользователь [Id = {id}] не найден.";
+            _logger.LogError(errorMessage);
+            return BadRequest(errorMessage);
         }
     }
 
@@ -151,7 +164,9 @@ public class AccountController(UserService userService, RoleService roleService)
         }
         catch(KeyNotFoundException)
         {
-            return BadRequest($"Пользователь [Id = {id}] не найден.");
+            string errorMessage = $"Пользователь [Id = {id}] не найден.";
+            _logger.LogError(errorMessage);
+            return BadRequest(errorMessage);
         }
     }
 
@@ -183,7 +198,9 @@ public class AccountController(UserService userService, RoleService roleService)
             }
             catch (Exception)
             {
-                return BadRequest($"Пользователь [Id = {model.Id}] не найден.");
+                string errorMessage = $"Пользователь [Id = {model.Id}] не найден.";
+                _logger.LogError(errorMessage);
+                return BadRequest(errorMessage);
             }
         }
 

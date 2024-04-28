@@ -6,12 +6,18 @@ using MyBlog.WebApp.Models;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class PostController(PostService postService, TagService tagService, UserService userService, CommentService commentService) : Controller
+    public class PostController(
+        PostService postService,
+        TagService tagService,
+        UserService userService,
+        CommentService commentService,
+        ILogger<PostController> logger) : Controller
     {
         private readonly PostService _postService = postService;
         private readonly TagService _tagService = tagService;
         private readonly UserService _userService = userService;
         private readonly CommentService _commentService = commentService;
+        private readonly ILogger<PostController> _logger = logger;
 
         [Authorize]
         [HttpGet]
@@ -47,6 +53,7 @@ namespace MyBlog.WebApp.Controllers
                     createPostViewModel.Text,
                     createPostViewModel.PostTagNames);
 
+                _logger.LogInformation($"Создана статья {createPostRequest.Title}, AuthorId: {createPostRequest.AuthorId}");
                 await _postService.Create(createPostRequest);
                 return RedirectToAction("All");
             }
@@ -77,49 +84,79 @@ namespace MyBlog.WebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                UpdatePostRequest request = new UpdatePostRequest(editPostViewModel.Id, editPostViewModel.Title, editPostViewModel.Text, editPostViewModel.PostTagNames);
-                await _postService.Update(request);
-                return RedirectToAction("All");
+                UpdatePostRequest request = new UpdatePostRequest(
+                    editPostViewModel.Id,
+                    editPostViewModel.Title,
+                    editPostViewModel.Text,
+                    editPostViewModel.PostTagNames);
+                try
+                {
+                    
+                    await _postService.Update(request);
+                    _logger.LogInformation($"Статья [ID {request.PostId}] обновлена.");
+                    return RedirectToAction("All");
+                }
+                catch (KeyNotFoundException)
+                {
+                    _logger.LogError($"Статья [ID {request.PostId}] не найдена.");
+                    return BadRequest();
+                }
+                
             }
-
-
             return View(editPostViewModel);
         }
 
         public async Task<IActionResult> Delete(long id)
         {
-            PostDTO? post = await _postService.Delete(id);
+            try
+            {
+                PostDTO post = await _postService.Delete(id);
+                _logger.LogInformation($"Статья [ID {post.Id}] удалена.");
+            }
+            catch (KeyNotFoundException)
+            {
+                _logger.LogError($"Статья [ID {id}] не найдена.");
+                throw;
+            }
             return RedirectToAction("All");
         }
 
         [HttpGet]
         public async Task<IActionResult> Details(long id)
         {
-            PostDTO post = await _postService.FindById(id);
-            UserDTO user = await _userService.FindById(post.AuthorId);
-            IEnumerable<CommentDTO> comments = await _commentService.FindByPostId(post.Id);
-
-            PostDetailsViewModel postDetailsViewModel = new PostDetailsViewModel()
+            try
             {
-                Id = post.Id,
-                Title = post.Title,
-                Text = post.Text,
-                AuthorId = post.AuthorId,
-                AuthorFirstName = user.FirstName,
-                AuthorLastName = user.LastName,
-                Comments = comments.Select(c => new CommentViewModel()
-                {
-                    Id = c.Id,
-                    Text = c.Text,
-                    Title = c.Title,
-                    UserFirstName = _userService.FindById(c.UserId).Result.FirstName,
-                    UserLastName = _userService.FindById(c.UserId).Result.LastName
-                }),
-                
-                Tags = post.Tags
-            };
+                PostDTO post = await _postService.FindById(id);
+                UserDTO user = await _userService.FindById(post.AuthorId);
+                IEnumerable<CommentDTO> comments = await _commentService.FindByPostId(post.Id);
 
-            return View(postDetailsViewModel);
+                PostDetailsViewModel postDetailsViewModel = new PostDetailsViewModel()
+                {
+                    Id = post.Id,
+                    Title = post.Title,
+                    Text = post.Text,
+                    AuthorId = post.AuthorId,
+                    AuthorFirstName = user.FirstName,
+                    AuthorLastName = user.LastName,
+                    Comments = comments.Select(c => new CommentViewModel()
+                    {
+                        Id = c.Id,
+                        Text = c.Text,
+                        Title = c.Title,
+                        UserFirstName = _userService.FindById(c.UserId).Result.FirstName,
+                        UserLastName = _userService.FindById(c.UserId).Result.LastName
+                    }),
+                    Tags = post.Tags
+                };
+
+                return View(postDetailsViewModel);
+            }
+            catch (KeyNotFoundException)
+            {
+                _logger.LogError($"Статья [ID {id}] не найдена.");
+                return BadRequest();
+            }
+            
         }
 
         [HttpPost]

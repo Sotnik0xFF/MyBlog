@@ -9,34 +9,16 @@ using System.Text.Json;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class TagController(TagService tagService) : Controller
+    public class TagController(TagService tagService, ILogger<TagController> logger) : Controller
     {
         private readonly TagService _tagService = tagService;
-        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions() 
-        { 
-            WriteIndented = true,
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping 
-        };
+        private readonly ILogger<TagController> _logger = logger;
 
         [HttpGet]
         public async Task<IActionResult> All()
         {
             IEnumerable<TagViewModel> tags = await _tagService.FindAll();
             return View(tags);
-        }
-
-        public async Task<IActionResult> ById(long id)
-        {
-            TagViewModel? tag = await _tagService.FindById(id);
-            if (tag != null)
-            {
-                return Json(tag, _jsonOptions);
-            }
-            else
-            {
-                return BadRequest("Тэг не найден.");
-            }
-            
         }
 
         [HttpGet]
@@ -51,6 +33,7 @@ namespace MyBlog.WebApp.Controllers
             if (tagName != null)
             {
                 await _tagService.Create(tagName);
+                _logger.LogInformation($"Добавлен тег {tagName}");
                 return RedirectToAction("All");
             }
             ModelState.AddModelError("", "Введите название тега");
@@ -84,6 +67,7 @@ namespace MyBlog.WebApp.Controllers
             try
             {
                 TagViewModel tag = await _tagService.Update(updateTagRequest);
+                _logger.LogInformation($"Название тега ID {tag.Id} изменено на {tag.Name}.");
                 return RedirectToAction("All");
             }
             catch(EntityAlreadyExistsException)

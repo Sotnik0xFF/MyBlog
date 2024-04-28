@@ -9,11 +9,16 @@ using System.Collections.Generic;
 
 namespace MyBlog.WebApp.Controllers
 {
-    public class CommentController(CommentService commentService, UserService userService, PostService postService) : Controller
+    public class CommentController(
+        CommentService commentService,
+        UserService userService,
+        PostService postService,
+        ILogger<CommentController> logger) : Controller
     {
         private readonly CommentService _commentService = commentService;
         private readonly UserService _userService = userService;
         private readonly PostService _postService = postService;
+        private readonly ILogger<CommentController> _logger = logger;
 
         [Authorize(Roles ="Администратор, Модератор")]
         public async Task<IActionResult> All()
@@ -31,14 +36,26 @@ namespace MyBlog.WebApp.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Администратор, Модератор")]
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
-            CommentDTO comment = await _commentService.FindById(id);
-            UpdateCommentRequest updateCommentRequest = new() { Id = comment.Id, Text = comment.Text, Title = comment.Title };
-            return View(updateCommentRequest);
+            try
+            {
+                CommentDTO comment = await _commentService.FindById(id);
+                UpdateCommentRequest updateCommentRequest = new() { Id = comment.Id, Text = comment.Text, Title = comment.Title };
+                return View(updateCommentRequest);
+            }
+            catch (KeyNotFoundException)
+            {
+                string errorMessage = $"Комментарий [Id = {id}] не найден.";
+                _logger.LogError(errorMessage);
+                return BadRequest(errorMessage);
+            }
+            
         }
 
+        [Authorize(Roles = "Администратор, Модератор")]
         [HttpPost]
         public async Task<IActionResult> Edit(UpdateCommentRequest updateCommentRequest)
         {
@@ -66,11 +83,14 @@ namespace MyBlog.WebApp.Controllers
             try
             {
                 await _commentService.Delete(id);
+                _logger.LogInformation($"Комментарий [ID = {id}] удален.");
                 return RedirectToAction("All");
             }
             catch (KeyNotFoundException)
             {
-                return BadRequest("Коментарий не найден.");
+                string errorMessage = $"Комментарий [Id = {id}] не найден.";
+                _logger.LogError(errorMessage);
+                return BadRequest(errorMessage);
             }
         }
     }
