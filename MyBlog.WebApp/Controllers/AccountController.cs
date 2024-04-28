@@ -134,7 +134,15 @@ public class AccountController(UserService userService, RoleService roleService,
     {
         try
         {
-            return Json(await _userService.FindById(id));
+            UserDTO user = await _userService.FindById(id);
+            UserDetailsViewModel userDetailsViewModel = new UserDetailsViewModel()
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                RoleNames = user.Roles.Select(role => role.Name)
+            };
+            return View(userDetailsViewModel);
         }
         catch (KeyNotFoundException)
         {

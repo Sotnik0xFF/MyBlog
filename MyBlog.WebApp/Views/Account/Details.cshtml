@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Информация о пользователе";
+}
+
+@model MyBlog.WebApp.Models.UserDetailsViewModel
+
+@{
+    <h1>@ViewData["Title"] @Model.FirstName @Model.LastName</h1>
+    <table class="table table-borderless table-sm">
+        <tr>
+            <td>Имя</td>
+            <td>@Model.FirstName</td>
+        </tr>
+        <tr>
+            <td>Фамилия</td>
+            <td>@Model.LastName</td>
+        </tr>
+        <tr>
+            <td>E-MAIL</td>
+            <td>@Model.Email</td>
+        </tr>
+        <tr>
+            <td>Роли</td>
+            <td>
+                @foreach(string roleName in Model.RoleNames)
+                {
+                    <span>@roleName </span>
+                }
+            </td>
+        </tr>
+    </table>
+}
