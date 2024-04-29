@@ -13,64 +13,50 @@ public class Program
         var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
         logger.Debug("init main");
 
-        try
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddApplicationServices();
-            builder.Services.AddControllersWithViews();
+        // Add services to the container.
+        builder.Services.AddApplicationServices();
+        builder.Services.AddControllersWithViews();
 
-            builder.Logging.ClearProviders();
-            builder.Host.UseNLog();
+        builder.Logging.ClearProviders();
+        builder.Host.UseNLog();
 
-            builder.Services.AddAuthorization();
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(
-                options =>
-                {
-                    options.LoginPath = "/Home/AccessDenied";
-                    options.AccessDeniedPath = "/Home/AccessDenied";
-                });
-
-            var app = builder.Build();
-
-            app.UseExceptionHandler("/Home/ExceptionHandler");
-
-            app.Use(async (context, next) =>
+        builder.Services.AddAuthorization();
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(
+            options =>
             {
-                await next();
-                if (context.Response.StatusCode == 404)
-                {
-                    context.Request.Path = "/Home/PageNotFound";
-                    await next();
-                }
+                options.LoginPath = "/Home/AccessDenied";
+                options.AccessDeniedPath = "/Home/AccessDenied";
             });
 
-            app.UseAuthentication();
+        var app = builder.Build();
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+        app.UseExceptionHandler("/Home/ExceptionHandler");
 
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            app.Run();
-        }
-        catch (Exception exception)
+        app.Use(async (context, next) =>
         {
-            logger.Error(exception, "Stopped program because of exception");
-            throw;
-        }
-        finally
-        {
-            NLog.LogManager.Shutdown();
-        }
+            await next();
+            if (context.Response.StatusCode == 404)
+            {
+                context.Request.Path = "/Home/PageNotFound";
+                await next();
+            }
+        });
 
-        
+        app.UseAuthentication();
+
+        app.UseHttpsRedirection();
+        app.UseStaticFiles();
+
+        app.UseRouting();
+
+        app.UseAuthorization();
+
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}");
+
+        app.Run();
     }
 }
