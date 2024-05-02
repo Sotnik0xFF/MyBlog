@@ -3,7 +3,7 @@
 }
 
 @using MyBlog.Application.Models
-@model IEnumerable<TagViewModel>
+@model IEnumerable<TagDTO>
 
 @{
     <h1>@ViewData["Title"]</h1>
@@ -12,7 +12,7 @@
         <div calss="mb-2 link-primary"><a asp-action="Create" asp-controller="Tag">Добавление тега</a></div>
     }
     
-    @foreach (TagViewModel tag in Model)
+    @foreach (TagDTO tag in Model)
     {
         <div class="card mb-2" style="width: 30rem;">
             <div class="card-body">

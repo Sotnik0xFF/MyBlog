@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Application.Models;
 
-public record TagViewModel
+public record TagDTO
 {
     public long Id { get; init; }
     public required string Name { get; init; }

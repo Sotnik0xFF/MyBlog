@@ -15,7 +15,7 @@ public class TagService(ITagRepository tagRepository)
 {
     private readonly ITagRepository _tagRepository = tagRepository;
 
-    public async Task<TagViewModel> Create(string tagValue)
+    public async Task<TagDTO> Create(string tagValue)
     {
         Tag? tag = await _tagRepository.FindByValue(tagValue);
         if (tag != null)
@@ -28,7 +28,7 @@ public class TagService(ITagRepository tagRepository)
         return Map(tag);
     }
 
-    public async Task<TagViewModel> Update(UpdateTagRequest updateTagRequest)
+    public async Task<TagDTO> Update(UpdateTagRequest updateTagRequest)
     {
         Tag? tagToUpdate = await _tagRepository.FindById(updateTagRequest.Id);
 
@@ -46,7 +46,7 @@ public class TagService(ITagRepository tagRepository)
         return Map(tagToUpdate);
     }
 
-    public async Task<TagViewModel> Delete(long id)
+    public async Task<TagDTO> Delete(long id)
     {
         Tag? tag = await _tagRepository.FindById(id);
 
@@ -59,7 +59,7 @@ public class TagService(ITagRepository tagRepository)
         return Map(tag);
     }
 
-    public async Task<TagViewModel> FindById(long id)
+    public async Task<TagDTO> FindById(long id)
     {
         Tag? tag = await _tagRepository.FindById(id);
 
@@ -69,10 +69,10 @@ public class TagService(ITagRepository tagRepository)
         return Map(tag);
     }
 
-    public async Task<IEnumerable<TagViewModel>> FindAll()
+    public async Task<IEnumerable<TagDTO>> FindAll()
     {
         IEnumerable<Tag> tags = await _tagRepository.FindAll();
-        List<TagViewModel> tagModels = new();
+        List<TagDTO> tagModels = new();
 
         foreach (Tag tag in tags)
         {
@@ -82,8 +82,8 @@ public class TagService(ITagRepository tagRepository)
         return tagModels;
     }
 
-    private TagViewModel Map(Tag tag)
+    private TagDTO Map(Tag tag)
     {
-        return new TagViewModel() { Id = tag.Id, Name = tag.Value };
+        return new TagDTO() { Id = tag.Id, Name = tag.Value };
     }
 }

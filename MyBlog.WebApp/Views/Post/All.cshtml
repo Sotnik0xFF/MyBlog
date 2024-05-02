@@ -22,7 +22,7 @@
                     <h5 class="card-title">@postHeader.Title</h5>
                 </a>
                 <div>
-                    @foreach (TagViewModel tag in postHeader.Tags)
+                    @foreach (TagDTO tag in postHeader.Tags)
                     {
                         <span class="badge bg-info mb-2">@tag.Name</span>
                     }

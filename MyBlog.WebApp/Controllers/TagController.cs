@@ -17,7 +17,7 @@ namespace MyBlog.WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> All()
         {
-            IEnumerable<TagViewModel> tags = await _tagService.FindAll();
+            IEnumerable<TagDTO> tags = await _tagService.FindAll();
             return View(tags);
         }
 
@@ -46,7 +46,7 @@ namespace MyBlog.WebApp.Controllers
         {
             try
             {
-                TagViewModel tag = await _tagService.FindById(id);
+                TagDTO tag = await _tagService.FindById(id);
                 UpdateTagRequest updateTagRequest = new() { Id = tag.Id, NewTagName = tag.Name };
                 return View(updateTagRequest);
             }
@@ -66,7 +66,7 @@ namespace MyBlog.WebApp.Controllers
             }
             try
             {
-                TagViewModel tag = await _tagService.Update(updateTagRequest);
+                TagDTO tag = await _tagService.Update(updateTagRequest);
                 _logger.LogInformation($"Название тега ID {tag.Id} изменено на {tag.Name}.");
                 return RedirectToAction("All");
             }
@@ -85,7 +85,7 @@ namespace MyBlog.WebApp.Controllers
         {
             try
             {
-                TagViewModel tag = await _tagService.Delete(id);
+                TagDTO tag = await _tagService.Delete(id);
                 return RedirectToAction("All");
             }
             catch (KeyNotFoundException)

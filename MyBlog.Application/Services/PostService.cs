@@ -122,7 +122,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
                 Id = post.Id,
                 Title = post.Title,
                 Author = await _UserService.FindById(post.UserId),
-                Tags = post.Tags.Select(t => new TagViewModel() { Id = t.Id, Name = t.Value }).ToArray()
+                Tags = post.Tags.Select(t => new TagDTO() { Id = t.Id, Name = t.Value }).ToArray()
             };
             postHeaders.Add(postHeader);
         }
@@ -142,7 +142,7 @@ public class PostService(IPostRepository postRepository, ITagRepository tagRepos
             Id = post.Id,
             Title = post.Title,
             Author = await _UserService.FindById(post.UserId),
-            Tags = post.Tags.Select(t => new TagViewModel() { Id = t.Id, Name = t.Value }).ToArray()
+            Tags = post.Tags.Select(t => new TagDTO() { Id = t.Id, Name = t.Value }).ToArray()
         };
 
         return postHeader;
