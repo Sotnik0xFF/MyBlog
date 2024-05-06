@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using MyBlog.Application;
 
 namespace MyBlog.API;
@@ -13,7 +14,15 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        
+
+        builder.Services.AddAuthorization();
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(
+            options =>
+            {
+                options.LoginPath = "/Home/AccessDenied";
+                options.AccessDeniedPath = "/Home/AccessDenied";
+            });
+
 
         var app = builder.Build();
 
@@ -24,7 +33,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
+        app.UseAuthentication();
         app.UseAuthorization();
 
 

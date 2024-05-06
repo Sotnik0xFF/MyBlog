@@ -199,7 +199,7 @@ public class AccountController(UserService userService, RoleService roleService,
                     model.FirstName,
                     model.LastName,
                     model.NewPassword,
-                    userRoles);
+                    userRoles.Select(r => r.Id));
 
                 await _userService.Update(request);
                 return RedirectToAction("All");

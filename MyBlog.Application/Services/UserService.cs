@@ -92,9 +92,9 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
         updatingUser.ClearRoles();
         IEnumerable<Role> allRoles = await _roleRepository.FindAll();
-        foreach (var userRoleModel in updateUserRequest.Roles)
+        foreach (long roleId in updateUserRequest.RolesId)
         {
-            Role role = allRoles.First(r => r.Id == userRoleModel.Id);
+            Role role = allRoles.First(r => r.Id == roleId);
             updatingUser.AddRole(role);
         }
 

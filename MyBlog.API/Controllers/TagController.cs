@@ -4,7 +4,6 @@ using MyBlog.Application.Exceptions;
 using MyBlog.Application.Models;
 using MyBlog.Application.Services;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace MyBlog.API.Controllers
 {
