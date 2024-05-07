@@ -12,12 +12,10 @@ namespace MyBlog.WebApp.Controllers
     public class CommentController(
         CommentService commentService,
         UserService userService,
-        PostService postService,
         ILogger<CommentController> logger) : Controller
     {
         private readonly CommentService _commentService = commentService;
         private readonly UserService _userService = userService;
-        private readonly PostService _postService = postService;
         private readonly ILogger<CommentController> _logger = logger;
 
         [Authorize(Roles ="Администратор, Модератор")]

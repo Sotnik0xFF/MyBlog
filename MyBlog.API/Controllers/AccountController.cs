@@ -69,8 +69,8 @@ public class AccountController(UserService userService) : ControllerBase
     }
 
     // DELETE api/<AccountController>/5
-    [HttpDelete("{id}")]
-    public async Task<Results<Ok, NotFound>> Delete(int id)
+    [HttpDelete("{id:long}")]
+    public async Task<Results<Ok, NotFound>> Delete(long id)
     {
         try
         {

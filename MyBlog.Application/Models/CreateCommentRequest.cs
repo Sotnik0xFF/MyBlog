@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MyBlog.Application.Models
 {
-    public class CreateCommentRequest
+    public record CreateCommentRequest
     {
         public CreateCommentRequest(long userId, long postId, string title, string text)
         {
@@ -16,9 +18,16 @@ namespace MyBlog.Application.Models
             Text = text;
         }
 
-        public string Title { get;}
-        public string Text { get; }
-        public long UserId { get; }
-        public long PostId { get; }
+        [Required]
+        public string Title { get; set; }
+
+        [Required]
+        public string Text { get; set; }
+
+        [Required]
+        public long UserId { get; set; }
+
+        [Required]
+        public long PostId { get; set; }
     }
 }
