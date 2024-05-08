@@ -13,18 +13,29 @@ namespace MyBlog.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Produces("application/json")]
 public class AccountController(UserService userService) : ControllerBase
 {
     private readonly UserService _userService = userService;
 
+    /// <summary>
+    /// Возвращает список всех пользователей.
+    /// </summary>
     [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<UserDTO>), StatusCodes.Status200OK)]
     public async Task<Ok<IEnumerable<UserDTO>>> GetAll()
     {
         var users = await _userService.FindAll();
         return TypedResults.Ok(users);
     }
 
+    /// <summary>
+    /// Возвращает пользователя с указанным Id.
+    /// </summary>
+    /// <param name="id">Идентификатор пользователя</param>
+    /// <response code="404">Если пользователь с указанным id не найден.</response>
     [HttpGet("{id:long}")]
+    [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
     public async Task<Results<Ok<UserDTO>, NotFound>> GetById(long id)
     {
         try
@@ -38,14 +49,19 @@ public class AccountController(UserService userService) : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Регистрирует нового пользователя.
+    /// </summary>
+    /// <response code="400">Если пользователь с таким E-Mail уже существует.</response>
     [HttpPost]
     [Route("register")]
-    public async Task<Results<Ok, BadRequest<string>>> Register([FromBody] CreateUserRequest createUserRequest)
+    [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
+    public async Task<Results<Ok<UserDTO>, BadRequest<string>>> Register([FromBody] CreateUserRequest createUserRequest)
     {
         try
         {
             UserDTO createdUser = await _userService.Create(createUserRequest);
-            return TypedResults.Ok();
+            return TypedResults.Ok(createdUser);
         }
         catch (EntityAlreadyExistsException)
         {
@@ -53,7 +69,12 @@ public class AccountController(UserService userService) : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Редактирует пользователя.
+    /// </summary>
+    /// <response code="404">Если пользователь с указанным id не найден.</response>
     [HttpPut]
+    [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
     public async Task<Results<Ok, NotFound>> Put([FromBody] UpdateUserRequest updateUserRequest)
     {
         try
@@ -65,10 +86,12 @@ public class AccountController(UserService userService) : ControllerBase
         {
             return TypedResults.NotFound();
         }
-        
     }
 
-    // DELETE api/<AccountController>/5
+    /// <summary>
+    /// Удаляет пользователя.
+    /// </summary>
+    /// <response code="404">Если пользователь с указанным id не найден.</response>
     [HttpDelete("{id:long}")]
     public async Task<Results<Ok, NotFound>> Delete(long id)
     {
@@ -83,9 +106,13 @@ public class AccountController(UserService userService) : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Вход пользователя.
+    /// </summary>
+    /// <response code="400">Неверный логин или пароль.</response>
     [HttpPost]
     [Route("login")]
-    public async Task<Results<Ok, NotFound, BadRequest<string>>> LogIn([FromBody] LoginRequest loginRequest)
+    public async Task<Results<Ok, BadRequest>> LogIn([FromBody] LoginRequest loginRequest)
     {
         try
         {
@@ -108,15 +135,18 @@ public class AccountController(UserService userService) : ControllerBase
             }
             else
             {
-                return TypedResults.BadRequest("Неверный логин или пароль.");
+                return TypedResults.BadRequest();
             }
         }
         catch (KeyNotFoundException)
         {
-            return TypedResults.NotFound();
+            return TypedResults.BadRequest();
         }
     }
 
+    /// <summary>
+    /// Выход текущего пользователя.
+    /// </summary>
     [HttpPost]
     [Route("logout")]
     public async Task LogOut()
